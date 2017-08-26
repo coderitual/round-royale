@@ -4,19 +4,16 @@
 <head>
   <title>Lost Round Battle</title>
   <meta charset="UTF-8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="viewport" content="width=device-width, minimal-ui, initial-scale=1, maximum-scale=1, user-scalable=0">
 </head>
 
 <body>
 
-  <div style="text-align:center">
-    <h1 id="message"></h1>
-    <div>
-      <button>Rock</button>
-      <button>Paper</button>
-      <button>Scissors</button>
-    </div>
-    <div id="score"></div>
-  </div>
+  <main id="game">
+    <canvas id="canvas"></canvas>
+  </main>
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/shared.js"></script>
