@@ -5,7 +5,16 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "run-s build start-server",
+    "start-server": "node index.js",
+    "build:client": "rollup src/client/index.js --o public/client.js --f iife",
+    "build:server": "rollup src/server/index.js --o public/server.js --f cjs",
+    "build:shared": "rollup src/shared/index.js --o public/shared.js --f cjs",
+    "build": "run-p build:*",
+    "watch:client": "rollup src/client/index.js --watch --o public/client.js --f iife",
+    "watch:server": "rollup src/server/index.js --watch --o public/server.js --f cjs",
+    "watch:shared": "rollup src/shared/index.js --watch --o public/shared.js --f cjs",
+    "watch": "run-p watch:*"
   },
   "keywords": [
     "js13kgames",
@@ -16,7 +25,11 @@
   },
   "dependencies": {
     "express": "4.15.*",
-    "socket.io": "2.0.*",
-    "glitchd-client-node": "*"
+    "glitchd-client-node": "*",
+    "socket.io": "2.0.*"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.0",
+    "rollup": "^0.48.2"
   }
 }
