@@ -1,20 +1,21 @@
-const createUser = (socket) => {
+const createUser = socket => {};
 
-};
-
-const createGame = () => {
-
-};
+const createGame = () => {};
 
 const users = new Set();
 
-export default (socket) => {
-  console.log("didConnect: " + socket.id);
+export default socket => {
+  console.log(`connect: ${socket.id}`);
   const user = createUser(socket);
   users.add(user);
 
-  socket.on("disconnect", function () {
-		console.log("didDisconnect: " + socket.id);
+  socket.on("disconnect", () => {
+    console.log(`disconnect: ${socket.id}`);
     users.delete(user);
-	});
+  });
+
+  socket.on("player_data", data => {
+    console.log("player_data");
+    console.dir(data);
+  });
 };

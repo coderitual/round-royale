@@ -64,6 +64,7 @@ window.addEventListener("deviceorientation", event => {
   // It center the positioning point to the center of the ball
   player.x = canvas.width * y / 180 - 10;
   player.y = canvas.height * x / 180 - 10;
+  socket.emit('player_data', player);
 });
 
 loop();
