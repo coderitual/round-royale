@@ -4,18 +4,20 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = canvas.clientWidth;
-canvas.height = canvas.clientHeight;
-
-window.addEventListener('resize', () => {
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-});
-
 const player = {
   x: canvas.width / 2,
   y: canvas.height / 2
 };
+
+const init = () => {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  player.x = canvas.width / 2;
+  player.y = canvas.height / 2;
+};
+
+window.addEventListener('resize', init);
+init();
 
 const scene = {
   player
@@ -58,8 +60,8 @@ window.addEventListener("deviceorientation", event => {
 
   // 10 is half the size of the ball
   // It center the positioning point to the center of the ball
-  player.y = canvas.height * x / 180 - 10;
   player.x = canvas.width * y / 180 - 10;
+  player.y = canvas.height * x / 180 - 10;
 });
 
 loop();
