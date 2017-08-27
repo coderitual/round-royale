@@ -6,15 +6,17 @@ const player = {
   y: canvas.height / 2
 };
 
-const init = () => {
+const initGfx = () => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
   player.x = canvas.width / 2;
   player.y = canvas.height / 2;
-}
+};
 
-window.addEventListener('resize', init);
-init();
+window.addEventListener("resize", initGfx);
+initGfx();
+
+const socket = io({ upgrade: false, transports: ["websocket"] });
 
 const scene = {
   player
