@@ -20,8 +20,8 @@ window.addEventListener("resize", initGfx);
 initGfx();
 
 let socket;
-if(window.location.hostname === 'localhost') {
-  socket = io('localhost:3000', { upgrade: false, transports: ["websocket"] });
+if(window.location.port === '8080') {
+  socket = io(`${window.location.hostname}:3000`, { upgrade: false, transports: ["websocket"] });
 } else {
   socket = io({ upgrade: false, transports: ["websocket"] });
 }

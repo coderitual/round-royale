@@ -16,10 +16,11 @@ const initGfx = () => {
 window.addEventListener("resize", initGfx);
 initGfx();
 
-if(process.env.NODE_ENV === 'development') {
-  const socket = io('localhost:3000', { upgrade: false, transports: ["websocket"] });
+let socket;
+if(window.location.port === '8080') {
+  socket = io(`${window.location.hostname}:3000`, { upgrade: false, transports: ["websocket"] });
 } else {
-  const socket = io({ upgrade: false, transports: ["websocket"] });
+  socket = io({ upgrade: false, transports: ["websocket"] });
 }
 
 const scene = {
