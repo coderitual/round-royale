@@ -5,8 +5,9 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "start": "run-p watch start-server",
-    "start-server": "node index.js",
+    "start": "run-p watch start:*",
+    "start:server": "nodemon --delay 1s index.js",
+    "start:client": "browser-sync start --proxy localhost:3000 --port 8080 --files public/*.js",
     "build:client": "rollup src/client/index.js --o public/client.js --f iife",
     "build:server": "rollup src/server/index.js --o public/server.js --f cjs",
     "build:shared": "rollup src/shared/index.js --o public/shared.js --f cjs",
@@ -29,6 +30,8 @@
     "socket.io": "2.0.*"
   },
   "devDependencies": {
+    "browsersync": "^0.0.1-security",
+    "nodemon": "^1.11.0",
     "npm-run-all": "^4.1.0",
     "rollup": "^0.48.2"
   }
