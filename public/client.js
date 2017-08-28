@@ -19,7 +19,12 @@ const initGfx = () => {
 window.addEventListener("resize", initGfx);
 initGfx();
 
-const socket = io({ upgrade: false, transports: ["websocket"] });
+let socket;
+if(window.location.hostname === 'localhost') {
+  socket = io('localhost:3000', { upgrade: false, transports: ["websocket"] });
+} else {
+  socket = io({ upgrade: false, transports: ["websocket"] });
+}
 
 const scene = {
   player
