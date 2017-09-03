@@ -1,6 +1,12 @@
 (function () {
 'use strict';
 
+var assets = {
+  test: 'assets/test.svg'
+};
+
+console.log(assets);
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
