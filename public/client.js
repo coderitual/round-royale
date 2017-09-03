@@ -2,10 +2,17 @@
 'use strict';
 
 var assets = {
-  test: 'assets/test.svg'
+  test: 'assets/test.svg',
+  'drawing': 'assets/drawing.svg'
 };
 
 console.log(assets);
+
+const img = document.createElement('img');
+img.src = assets.drawing;
+img.addEventListener('load', () => {
+  console.dir(img);
+});
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -46,6 +53,8 @@ const render = scene => {
   ctx.lineWidth = 6;
   ctx.strokeStyle = "#333";
   ctx.stroke();
+
+  ctx.drawImage(img, 0,0);
 };
 
 const loop = dt => {
