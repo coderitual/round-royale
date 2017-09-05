@@ -3,15 +3,25 @@
 
 var assets = {
   test: 'assets/test.svg',
-  'drawing': 'assets/drawing.svg'
+  drawing: 'assets/drawing.svg',
+  hole: 'assets/hole.svg',
+  stamp: 'assets/stamp.svg'
 };
 
 console.log(assets);
 
 const img = document.createElement('img');
-img.src = assets.drawing;
+img.src = assets.hole;
 img.addEventListener('load', () => {
-  console.dir(img);
+  const { width, height } = img;
+  console.log({ width, height });
+});
+
+const stamp = document.createElement('img');
+stamp.src = assets.stamp;
+stamp.addEventListener('load', () => {
+  const { width, height } = stamp;
+  console.log({ width, height });
 });
 
 const canvas = document.getElementById("canvas");
@@ -44,7 +54,17 @@ const scene = {
 };
 
 const render = scene => {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.globalCompositeOperation = 'source-over';
+  ctx.fillStyle = "#2c5b1e";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  ctx.drawImage(img, 0,0, 200, 200);
+  ctx.drawImage(img, 300,200, 100, 100);
+
+  ctx.globalCompositeOperation = 'soft-light';
+  ctx.drawImage(stamp, -100, -200, 500, 500);
+
+  ctx.globalCompositeOperation = 'source-over';
 
   ctx.beginPath();
   ctx.arc(scene.player.x, scene.player.y, 20, 0, 2 * Math.PI, false);
@@ -53,8 +73,6 @@ const render = scene => {
   ctx.lineWidth = 6;
   ctx.strokeStyle = "#333";
   ctx.stroke();
-
-  ctx.drawImage(img, 0,0);
 };
 
 const loop = dt => {
