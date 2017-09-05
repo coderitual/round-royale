@@ -135,6 +135,9 @@ const update = (scene, dt) => {
   player.vx += player.ax * dt / 1000;
   player.vy += player.ay * dt / 1000;
 
+  player.vx *= 0.98;
+  player.vy *= 0.98;
+
   player.x += player.vx * dt / 100;
   player.y += player.vy * dt / 100;
 };
