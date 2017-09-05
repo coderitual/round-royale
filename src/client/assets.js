@@ -6,4 +6,5 @@ export default {
   tree: 'assets/tree.svg',
   eye: 'assets/eye.svg',
   stamp2: 'assets/stamp2.svg',
+  eye_closed: 'assets/eye_closed.svg',
 };

@@ -36,6 +36,15 @@ eye.addEventListener('load', () => {
   console.log({ width, height });
 });
 
+const eye_closed = document.createElement('img');
+eye_closed.src = assets.eye_closed;
+eye_closed.addEventListener('load', () => {
+  const { width, height } = eye_closed;
+  console.log({ width, height });
+});
+
+const eyes = [eye, eye, eye, eye, eye_closed];
+
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
@@ -75,7 +84,7 @@ const scene = {
   player
 };
 
-const render = scene => {
+const render = (scene, dt, time) => {
   ctx.globalAlpha = 1;
   ctx.globalCompositeOperation = 'source-over';
   ctx.fillStyle = "#2c5b1e";
@@ -98,7 +107,8 @@ const render = scene => {
 
   ctx.restore();
 
-  ctx.drawImage(eye, canvas.width / 2 - eye.width / 2, canvas.height / 2 - eye.height / 2);
+  const avatar = eyes[Math.round(time / 500) % 5];
+  ctx.drawImage(avatar, canvas.width / 2 - eye.width / 2, canvas.height / 2 - eye.height / 2);
 
   ctx.beginPath();
   ctx.arc(scene.pointer.x, scene.pointer.y, 5, 0, 2 * Math.PI, false);
@@ -107,7 +117,6 @@ const render = scene => {
   ctx.lineWidth = 3;
   ctx.strokeStyle = "#fff";
   ctx.stroke();
-
 };
 
 const update = (scene, dt) => {
@@ -145,8 +154,9 @@ const update = (scene, dt) => {
 let oldTime = 0;
 const loop = time => {
   requestAnimationFrame(loop);
-  update(scene, time - oldTime);
-  render(scene);
+  const dt = time - oldTime;
+  update(scene, dt, time);
+  render(scene, dt, time);
   oldTime = time;
 };
 
