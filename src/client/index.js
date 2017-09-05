@@ -48,7 +48,9 @@ const player = {
   x: 0,
   y: 0,
   vx: 0,
-  vy: 0
+  vy: 0,
+  ax: 0,
+  ay: 0
 };
 
 const initGfx = () => {
@@ -111,24 +113,27 @@ const render = scene => {
 const update = (scene, dt) => {
   const { pointer, player } = scene;
 
-  player.vx = (pointer.x - canvas.width / 2);
-  player.vy = (pointer.y - canvas.height / 2);
+  player.ax = (pointer.x - canvas.width / 2);
+  player.ay = (pointer.y - canvas.height / 2);
 
   // Dead zone
   const deadZone = 5;
-  if(Math.abs(player.vx) < deadZone) {
-    player.vx = 0;
+  if(Math.abs(player.ax) < deadZone) {
+    player.ax = 0;
   } else {
-    if(player.vx > 0) player.vx -= deadZone;
-    if(player.vx < 0) player.vx += deadZone;
+    if(player.ax > 0) player.ax -= deadZone;
+    if(player.ax < 0) player.ax += deadZone;
   }
 
-  if(Math.abs(player.vy) < deadZone) {
-    player.vy = 0;
+  if(Math.abs(player.ay) < deadZone) {
+    player.ay = 0;
   } else {
-    if(player.vy > 0) player.vy -= deadZone;
-    if(player.vy < 0) player.vy += deadZone;
+    if(player.ay > 0) player.ay -= deadZone;
+    if(player.ay < 0) player.ay += deadZone;
   }
+
+  player.vx += player.ax * dt / 1000;
+  player.vy += player.ay * dt / 1000;
 
   player.x += player.vx * dt / 100;
   player.y += player.vy * dt / 100;
