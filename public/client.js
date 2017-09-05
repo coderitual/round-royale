@@ -5,7 +5,8 @@ var assets = {
   test: 'assets/test.svg',
   drawing: 'assets/drawing.svg',
   hole: 'assets/hole.svg',
-  stamp: 'assets/stamp.svg'
+  stamp: 'assets/stamp.svg',
+  tree: 'assets/tree.svg',
 };
 
 console.log(assets);
@@ -23,6 +24,14 @@ stamp.addEventListener('load', () => {
   const { width, height } = stamp;
   console.log({ width, height });
 });
+
+const tree = document.createElement('img');
+tree.src = assets.tree;
+tree.addEventListener('load', () => {
+  const { width, height } = stamp;
+  console.log({ width, height });
+});
+
 
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
@@ -62,9 +71,12 @@ const render = scene => {
   ctx.drawImage(img, 300,200, 100, 100);
 
   ctx.globalCompositeOperation = 'soft-light';
+
   ctx.drawImage(stamp, -100, -200, 500, 500);
 
   ctx.globalCompositeOperation = 'source-over';
+
+  ctx.drawImage(tree, 20, 300);
 
   ctx.beginPath();
   ctx.arc(scene.player.x, scene.player.y, 20, 0, 2 * Math.PI, false);
