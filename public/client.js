@@ -8,6 +8,7 @@ var assets = {
   eye: 'assets/eye.svg',
   stamp2: 'assets/stamp2.svg',
   eye_closed: 'assets/eye_closed.svg',
+  heart: 'assets/heart.svg',
 };
 
 console.log(assets);
