@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "run-p watch start:*",
-    "start:server": "nodemon --delay 500ms index.js",
-    "start:client": "browser-sync start --reloadDelay 1000 --proxy localhost:3000 --port 8080 --files public/*.js",
+    "start:server": "nodemon --delay 1000ms index.js",
+    "start:client": "browser-sync start --reloadDelay 1500 --proxy localhost:3000 --port 8080 --files public/*.js",
     "build:client": "rollup src/client/index.js --o public/client.js --f iife",
     "build:server": "rollup src/server/index.js --o public/server.js --f cjs",
     "build:shared": "rollup src/shared/index.js --o public/shared.js --f cjs",
