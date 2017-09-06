@@ -11,14 +11,15 @@ var assets = {
   heart: 'assets/heart.svg',
   projectile: 'assets/projectile.svg',
   arrow: 'assets/arrow.svg',
+  powerup: 'assets/powerup.svg',
 };
 
 console.log(assets);
 
-const img = document.createElement('img');
-img.src = assets.hole;
-img.addEventListener('load', () => {
-  const { width, height } = img;
+const hole = document.createElement('img');
+hole.src = assets.hole;
+hole.addEventListener('load', () => {
+  const { width, height } = hole;
   console.log({ width, height });
 });
 
@@ -54,6 +55,13 @@ const eye_closed = document.createElement('img');
 eye_closed.src = assets.eye_closed;
 eye_closed.addEventListener('load', () => {
   const { width, height } = eye_closed;
+  console.log({ width, height });
+});
+
+const powerup = document.createElement('img');
+powerup.src = assets.powerup;
+powerup.addEventListener('load', () => {
+  const { width, height } = powerup;
   console.log({ width, height });
 });
 
@@ -108,12 +116,14 @@ const render = (scene, dt, time) => {
   ctx.save();
   ctx.translate(-scene.player.x, -scene.player.y);
 
-  ctx.drawImage(img, 0,0, 200, 200);
-  ctx.drawImage(img, 300,200, 100, 100);
+  ctx.drawImage(hole, 0,0, 200, 200);
+  ctx.drawImage(hole, 300,200, 100, 100);
+
+  ctx.drawImage(powerup, 300 ,50);
 
   ctx.drawImage(tree, 20, 200);
-  ctx.drawImage(tree, 90, 350);
   ctx.drawImage(tree, 250, 300);
+  ctx.drawImage(tree, 90, 400, 123*2, 157*2);
 
   ctx.globalCompositeOperation = 'soft-light';
   ctx.drawImage(stamp, -100, -200, 500, 500);

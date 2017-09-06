@@ -8,4 +8,5 @@ export default {
   heart: 'assets/heart.svg',
   projectile: 'assets/projectile.svg',
   arrow: 'assets/arrow.svg',
+  powerup: 'assets/powerup.svg',
 };
