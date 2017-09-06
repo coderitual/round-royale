@@ -111,7 +111,8 @@ const render = (scene, dt, time) => {
   ctx.drawImage(img, 0,0, 200, 200);
   ctx.drawImage(img, 300,200, 100, 100);
 
-  ctx.drawImage(tree, 20, 100);
+  ctx.drawImage(tree, 20, 200);
+  ctx.drawImage(tree, 90, 350);
   ctx.drawImage(tree, 250, 300);
 
   ctx.globalCompositeOperation = 'soft-light';
