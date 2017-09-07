@@ -1,4 +1,6 @@
 import assets from './assets';
+import input from './input';
+
 console.log(assets);
 
 const hole = document.createElement('img');
