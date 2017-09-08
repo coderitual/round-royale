@@ -68,7 +68,9 @@ const player = {
   vx: 0,
   vy: 0,
   ax: 0,
-  ay: 0
+  ay: 0,
+  tx: 0,
+  ty: 0,
 };
 
 const initGfx = () => {
@@ -132,35 +134,10 @@ const render = (scene, dt, time) => {
 };
 
 const update = (scene, dt) => {
-  const { pointer, player } = scene;
-
-  // player.ax = (pointer.x - canvas.width / 2);
-  // player.ay = (pointer.y - canvas.height / 2);
-
-  // // Dead zone
-  // const deadZone = 5;
-  // if(Math.abs(player.ax) < deadZone) {
-  //   player.ax = 0;
-  // } else {
-  //   if(player.ax > 0) player.ax -= deadZone;
-  //   if(player.ax < 0) player.ax += deadZone;
-  // }
-
-  // if(Math.abs(player.ay) < deadZone) {
-  //   player.ay = 0;
-  // } else {
-  //   if(player.ay > 0) player.ay -= deadZone;
-  //   if(player.ay < 0) player.ay += deadZone;
-  // }
-
-  // player.vx += player.ax * dt / 1000;
-  // player.vy += player.ay * dt / 1000;
-
-  // player.vx *= 0.98;
-  // player.vy *= 0.98;
-
-  // player.x += player.vx * dt / 100;
-  // player.y += player.vy * dt / 100;
+  const { player } = scene;
+  // Add easing to compensate lag
+  player.x += (player.tx - player.x) / 5;
+  player.y += (player.ty - player.y) / 5;
 };
 
 let oldTime = 0;
@@ -200,8 +177,8 @@ window.addEventListener("deviceorientation", event => {
 });
 
 socket.on('s:player', (x, y) => {
-  player.x = x;
-  player.y = y;
+  player.tx = x;
+  player.ty = y;
 });
 
 loop(0);

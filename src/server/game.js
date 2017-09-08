@@ -61,7 +61,7 @@ const createGame = () => {
     lastUpdate = now;
   }
 
-  const interval = setInterval(loop, 100);
+  const interval = setInterval(loop, 30);
   const destroy = () => clearInterval(interval);
 
   return {
