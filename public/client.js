@@ -162,34 +162,33 @@ var update = function update(scene, dt) {
   var pointer = scene.pointer,
       player = scene.player;
 
+  // player.ax = (pointer.x - canvas.width / 2);
+  // player.ay = (pointer.y - canvas.height / 2);
 
-  player.ax = pointer.x - canvas.width / 2;
-  player.ay = pointer.y - canvas.height / 2;
+  // // Dead zone
+  // const deadZone = 5;
+  // if(Math.abs(player.ax) < deadZone) {
+  //   player.ax = 0;
+  // } else {
+  //   if(player.ax > 0) player.ax -= deadZone;
+  //   if(player.ax < 0) player.ax += deadZone;
+  // }
 
-  // Dead zone
-  var deadZone = 5;
-  if (Math.abs(player.ax) < deadZone) {
-    player.ax = 0;
-  } else {
-    if (player.ax > 0) player.ax -= deadZone;
-    if (player.ax < 0) player.ax += deadZone;
-  }
+  // if(Math.abs(player.ay) < deadZone) {
+  //   player.ay = 0;
+  // } else {
+  //   if(player.ay > 0) player.ay -= deadZone;
+  //   if(player.ay < 0) player.ay += deadZone;
+  // }
 
-  if (Math.abs(player.ay) < deadZone) {
-    player.ay = 0;
-  } else {
-    if (player.ay > 0) player.ay -= deadZone;
-    if (player.ay < 0) player.ay += deadZone;
-  }
+  // player.vx += player.ax * dt / 1000;
+  // player.vy += player.ay * dt / 1000;
 
-  player.vx += player.ax * dt / 1000;
-  player.vy += player.ay * dt / 1000;
+  // player.vx *= 0.98;
+  // player.vy *= 0.98;
 
-  player.vx *= 0.98;
-  player.vy *= 0.98;
-
-  player.x += player.vx * dt / 100;
-  player.y += player.vy * dt / 100;
+  // player.x += player.vx * dt / 100;
+  // player.y += player.vy * dt / 100;
 };
 
 var oldTime = 0;
@@ -223,8 +222,14 @@ window.addEventListener("deviceorientation", function (event) {
   // It center the positioning point to the center of the ball
   pointer.x = canvas.width * y / 180;
   pointer.y = canvas.height * x / 180;
+  pointer.cw = canvas.width;
+  pointer.ch = canvas.height;
+  socket.emit('u:pointer', pointer);
+});
 
-  socket.emit('pointer_data', pointer);
+socket.on('s:player', function (x, y) {
+  player.x = x;
+  player.y = y;
 });
 
 loop(0);
