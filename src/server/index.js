@@ -4,10 +4,13 @@ import { createUser } from './user';
 const users = new Set();
 const games = new Set();
 
+let userId = 0;
+let gameId = 0;
+
 const findOrCreateGame = () => {
   let game = [...games].find(game => game.usersCount < game.maxUsersCount);
   if(!game) {
-    game = createGame({ name: `Game ${games.size}`});
+    game = createGame({ name: `Game ${gameId++}`});
     games.add(game);
   }
   return game;
@@ -16,7 +19,8 @@ const findOrCreateGame = () => {
 export default socket => {
   console.log(`connect: ${socket.id}`);
 
-  const { username  = `Guest ${users.size}` } = socket.handshake.query;
+  const { username  = `Guest ${userId++}` } = socket.handshake.query;
+  console.log(username)
   const user = createUser(socket, username);
   users.add(user);
 

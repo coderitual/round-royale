@@ -118,7 +118,7 @@ const render = (scene, dt, time) => {
 
   // move world instead of player
   ctx.save();
-  ctx.translate(-scene.players.me.x + (canvas.width / 2 - eye.width / 2), -scene.players.me.y + (canvas.height / 2 - eye.height / 2));
+  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
 
   ctx.drawImage(hole, 0,0, 200, 200);
   ctx.drawImage(hole, 300,200, 100, 100);

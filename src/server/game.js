@@ -23,7 +23,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       player.ay = (pointer.y - pointer.ch / 2);
 
       // Dead zone
-      const deadZone = 5;
+      const deadZone = 10;
       if(Math.abs(player.ax) < deadZone) {
         player.ax = 0;
       } else {
