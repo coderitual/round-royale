@@ -1,10 +1,11 @@
-const createPlayer = () => ({
+const createPlayer = (userId) => ({
+  userId,
   x: 0,
   y: 0,
   vx: 0,
   vy: 0,
   ax: 0,
-  ay: 0
+  ay: 0,
 });
 
 const createGame = () => {
@@ -47,8 +48,24 @@ const createGame = () => {
   };
 
   const sync = () => {
-    users.forEach(user => {
-      user.socket.emit('s:player', user.player.x, user.player.y);
+    users.forEach(currentUser => {
+      const others =
+        [...users]
+          .filter(user => user !== currentUser)
+          .map(user => ({
+            x: user.player.x,
+            y: user.player.y,
+            id: user.socket.id
+          }));
+
+      const me = {
+        x: currentUser.player.x,
+        y: currentUser.player.y,
+        id: currentUser.socket.id,
+        me: true
+      };
+
+      currentUser.socket.emit('s:players', { me, others });
     });
   }
 
@@ -67,7 +84,7 @@ const createGame = () => {
   return {
     addUser(user) {
       users.add(user);
-      user.player = createPlayer();
+      user.player = createPlayer(user.socket.id);
     },
     get usersCount() {
       return users.size;

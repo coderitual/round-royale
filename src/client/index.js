@@ -60,13 +60,6 @@ const pointer = {
   y: canvas.height / 2
 };
 
-const player = {
-  x: 0,
-  y: 0,
-  tx: 0,
-  ty: 0,
-};
-
 const initGfx = () => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
@@ -90,9 +83,22 @@ socket.on('pong', (ms) => {
   ping = ms;
 });
 
+const createPlayer = (id) => ({
+  id,
+  x: 0,
+  y: 0,
+  sx: 0,
+  sy: 0,
+})
+
+const players = {
+  me: createPlayer('me'),
+  others: new Map(),
+};
+console.log(players)
 const scene = {
   pointer,
-  player
+  players,
 };
 
 const render = (scene, dt, time) => {
@@ -103,7 +109,7 @@ const render = (scene, dt, time) => {
 
   // move world instead of player
   ctx.save();
-  ctx.translate(-scene.player.x, -scene.player.y);
+  ctx.translate(-scene.players.me.x + (canvas.width / 2 - eye.width / 2), -scene.players.me.y + (canvas.height / 2 - eye.height / 2));
 
   ctx.drawImage(hole, 0,0, 200, 200);
   ctx.drawImage(hole, 300,200, 100, 100);
@@ -118,6 +124,10 @@ const render = (scene, dt, time) => {
   ctx.drawImage(stamp, -100, -200, 500, 500);
   ctx.drawImage(stamp2, 300, 200, 300, 300);
   ctx.globalCompositeOperation = 'source-over';
+
+  scene.players.others.forEach((player) => {
+    ctx.drawImage(eye, player.x, player.y);
+  });
 
   ctx.restore();
 
@@ -140,10 +150,15 @@ const render = (scene, dt, time) => {
 };
 
 const update = (scene, dt) => {
-  const { player } = scene;
+  const { players } = scene;
   // Add easing to compensate lag
-  player.x += (player.tx - player.x) / 5;
-  player.y += (player.ty - player.y) / 5;
+  players.me.x += (players.me.sx - players.me.x) / 5;
+  players.me.y += (players.me.sy - players.me.y) / 5;
+
+  players.others.forEach(player => {
+    player.x += (player.sx - player.x) / 5;
+    player.y += (player.sy - player.y) / 5;
+  });
 };
 
 let oldTime = 0;
@@ -182,9 +197,20 @@ window.addEventListener("deviceorientation", event => {
   socket.emit('c:pointer', pointer);
 });
 
-socket.on('s:player', (x, y) => {
-  player.tx = x;
-  player.ty = y;
+socket.on('s:players', ({ me, others }) => {
+  others.forEach((playerData) => {
+    let player = scene.players.others.get(playerData.id);
+    if(!player) {
+      player = createPlayer(playerData);
+      scene.players.others.set(playerData.id, player);
+      return;
+    }
+    player.sx = playerData.x;
+    player.sy = playerData.y;
+  });
+
+  scene.players.me.sx = me.x;
+  scene.players.me.sy = me.y;
 });
 
 loop(0);
