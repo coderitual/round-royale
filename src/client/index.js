@@ -137,8 +137,8 @@ const render = (scene, dt, time) => {
   scene.players.others.forEach((player) => {
     ctx.drawImage(eye, player.x - eye.width / 2, player.y - eye.height / 2);
 
-    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
-    ctx.font = '12px sans-serif';
+    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     ctx.shadowColor = "black";
     ctx.shadowOffsetX = 1;
@@ -213,7 +213,12 @@ window.addEventListener("deviceorientation", event => {
   socket.emit('c:pointer', pointer);
 });
 
-socket.on('s:players', ({ me, others }) => {
+socket.on('s:players:update', ({ me, others }) => {
+  // Filter out removed players
+  scene.players.others = new Map([...scene.players.others].filter(([id]) => {
+    return others.find(playerData => playerData.id === id) != null;
+  }));
+  // Update players data and add already joined player
   others.forEach((playerData) => {
     let player = scene.players.others.get(playerData.id);
     if(!player) {

@@ -68,7 +68,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
         me: true
       };
 
-      currentUser.socket.emit('s:players', { me, others });
+      currentUser.socket.emit('s:players:update', { me, others });
     });
   }
 
@@ -82,6 +82,9 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
     addUser(user) {
       users.add(user);
       user.player = createPlayer(user.socket.id);
+    },
+    removeUser(user) {
+      users.delete(user);
     },
     get usersCount() {
       return users.size;

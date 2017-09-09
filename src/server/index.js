@@ -31,6 +31,7 @@ export default socket => {
   socket.on("disconnect", () => {
     console.log(`disconnect: ${socket.id}`);
     users.delete(user);
+    user.game.removeUser(user);
   });
 
   socket.on("c:pointer", pointer => {
