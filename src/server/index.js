@@ -28,7 +28,7 @@ export default socket => {
     users.delete(user);
   });
 
-  socket.on("u:pointer", pointer => {
+  socket.on("c:pointer", pointer => {
     if(user.game) {
       user.pointer = pointer;
     }

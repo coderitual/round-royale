@@ -51,7 +51,9 @@ require("fs").readFile("./public/shared.js", "utf8", (err, shared) => {
     const express = require("express"),
       app = express(),
       server = require("http").Server(app),
-      io = require("socket.io")(server),
+      io = require("socket.io")(server, {
+        pingInterval: 1000,
+      }),
       sandbox = createSandbox();
 
     require("vm").runInNewContext(shared + "\n" + code, sandbox);

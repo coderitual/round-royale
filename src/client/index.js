@@ -1,8 +1,6 @@
 import assets from './assets';
 import input from './input';
 
-console.log(assets);
-
 const hole = document.createElement('img');
 hole.src = assets.hole;
 hole.addEventListener('load', () => {
@@ -65,10 +63,6 @@ const pointer = {
 const player = {
   x: 0,
   y: 0,
-  vx: 0,
-  vy: 0,
-  ax: 0,
-  ay: 0,
   tx: 0,
   ty: 0,
 };
@@ -89,6 +83,12 @@ if(window.location.port === '8080') {
 } else {
   socket = io({ upgrade: false, transports: ["websocket"] });
 }
+
+let ping = 0;
+
+socket.on('pong', (ms) => {
+  ping = ms;
+});
 
 const scene = {
   pointer,
@@ -131,6 +131,12 @@ const render = (scene, dt, time) => {
   ctx.lineWidth = 3;
   ctx.strokeStyle = "#fff";
   ctx.stroke();
+
+  ctx.fillStyle = "rgba(255, 255, 255, 1)";
+  ctx.font = '12px sans-serif';
+  ctx.textAlign = 'start';
+  ctx.textBaseline = 'top';
+  ctx.fillText(`ping: ${ping}`, 10, 10);
 };
 
 const update = (scene, dt) => {
@@ -173,7 +179,7 @@ window.addEventListener("deviceorientation", event => {
   pointer.y = canvas.height * x / 180;
   pointer.cw = canvas.width;
   pointer.ch = canvas.height;
-  socket.emit('u:pointer', pointer);
+  socket.emit('c:pointer', pointer);
 });
 
 socket.on('s:player', (x, y) => {
