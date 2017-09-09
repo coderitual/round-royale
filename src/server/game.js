@@ -1,3 +1,5 @@
+import loop from './loop';
+
 const createPlayer = (userId) => ({
   userId,
   x: 0,
@@ -8,7 +10,7 @@ const createPlayer = (userId) => ({
   ay: 0,
 });
 
-const createGame = (maxUsersCount = 6) => {
+const createGame = ({ name, maxUsersCount = 2 } = {}) => {
   const users = new Set();
 
   const update = (dt) => {
@@ -55,7 +57,8 @@ const createGame = (maxUsersCount = 6) => {
           .map(user => ({
             x: user.player.x,
             y: user.player.y,
-            id: user.socket.id
+            id: user.socket.id,
+            username: user.username,
           }));
 
       const me = {
@@ -69,17 +72,10 @@ const createGame = (maxUsersCount = 6) => {
     });
   }
 
-  let lastUpdate = Date.now();
-  const loop = () => {
-    const now = Date.now();
-    const dt = now - lastUpdate;
+  const destroy = loop((dt) => {
     update(dt);
     sync();
-    lastUpdate = now;
-  }
-
-  const interval = setInterval(loop, 30);
-  const destroy = () => clearInterval(interval);
+  });
 
   return {
     maxUsersCount,

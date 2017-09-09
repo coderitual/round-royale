@@ -72,9 +72,17 @@ initGfx();
 
 let socket;
 if(window.location.port === '8080') {
-  socket = io(`${window.location.hostname}:3000`, { upgrade: false, transports: ["websocket"] });
+  socket = io(`${window.location.hostname}:3000`, {
+    upgrade: false,
+    transports: ["websocket"],
+    query: `${(new URL(window.location)).searchParams}`,
+  });
 } else {
-  socket = io({ upgrade: false, transports: ["websocket"] });
+  socket = io({
+    upgrade: false,
+    transports: ["websocket"],
+    query: `${(new URL(window.location)).searchParams}`,
+  });
 }
 
 let ping = 0;
@@ -83,8 +91,9 @@ socket.on('pong', (ms) => {
   ping = ms;
 });
 
-const createPlayer = (id) => ({
+const createPlayer = ({ id, username = '' }) => ({
   id,
+  username,
   x: 0,
   y: 0,
   sx: 0,
@@ -126,7 +135,16 @@ const render = (scene, dt, time) => {
   ctx.globalCompositeOperation = 'source-over';
 
   scene.players.others.forEach((player) => {
-    ctx.drawImage(eye, player.x, player.y);
+    ctx.drawImage(eye, player.x - eye.width / 2, player.y - eye.height / 2);
+
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.font = '12px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.shadowColor = "black";
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.shadowBlur = 1;
+    ctx.fillText(player.username,  player.x, player.y + 15);
   });
 
   ctx.restore();
@@ -188,8 +206,6 @@ window.addEventListener("deviceorientation", event => {
   x += 90;
   y += 90;
 
-  // 10 is half the size of the ball
-  // It center the positioning point to the center of the ball
   pointer.x = canvas.width * y / 180;
   pointer.y = canvas.height * x / 180;
   pointer.cw = canvas.width;

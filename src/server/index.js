@@ -1,22 +1,23 @@
 import { createGame } from './game';
 import { createUser } from './user';
 
+const users = new Set();
+const games = new Set();
+
 const findOrCreateGame = () => {
   let game = [...games].find(game => game.usersCount < game.maxUsersCount);
   if(!game) {
-    game = createGame();
+    game = createGame({ name: `Game ${games.size}`});
     games.add(game);
   }
   return game;
 }
 
-const users = new Set();
-const games = new Set();
-
 export default socket => {
   console.log(`connect: ${socket.id}`);
 
-  const user = createUser(socket);
+  const { username  = `Guest ${users.size}` } = socket.handshake.query;
+  const user = createUser(socket, username);
   users.add(user);
 
   const game = findOrCreateGame();

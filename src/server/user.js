@@ -1,10 +1,9 @@
-const createUser = socket => {
-  return new class User {
-    socket = socket;
-    game = null;
-    player = null;
-    pointer = null;
-  };
-};
+const createUser = (socket, username) => ({
+  socket,
+  username,
+  game: null,
+  player: null,
+  pointer: null,
+});
 
 export { createUser };
