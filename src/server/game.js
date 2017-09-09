@@ -8,7 +8,7 @@ const createPlayer = (userId) => ({
   ay: 0,
 });
 
-const createGame = (maxUsersCount = 3) => {
+const createGame = (maxUsersCount = 6) => {
   const users = new Set();
 
   const update = (dt) => {
