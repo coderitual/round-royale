@@ -8,7 +8,7 @@ const createPlayer = (userId) => ({
   ay: 0,
 });
 
-const createGame = () => {
+const createGame = (maxUsersCount = 3) => {
   const users = new Set();
 
   const update = (dt) => {
@@ -82,6 +82,7 @@ const createGame = () => {
   const destroy = () => clearInterval(interval);
 
   return {
+    maxUsersCount,
     addUser(user) {
       users.add(user);
       user.player = createPlayer(user.socket.id);

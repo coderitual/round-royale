@@ -2,7 +2,7 @@ import { createGame } from './game';
 import { createUser } from './user';
 
 const findOrCreateGame = () => {
-  let game = [...games].find(game => game.usersCount < 2);
+  let game = [...games].find(game => game.usersCount < game.maxUsersCount);
   if(!game) {
     game = createGame();
     games.add(game);
