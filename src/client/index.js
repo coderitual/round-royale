@@ -4,8 +4,8 @@ import {
   drawWorld,
   drawPlayer,
   drawOtherPlayers,
-  drawHole,
-  drawTree,
+  drawHoles,
+  drawTrees,
   drawPointer,
   drawDebugInfo
 } from './graphics.js'
@@ -66,19 +66,13 @@ const players = {
 const world = {
   width: 0,
   height: 0,
-}
-
-const createTree = ({ x, y, r}) => ({ x, y, r });
-const createHole = ({ x, y, r}) => ({ x, y, r });
-
-const trees = new Set();
-const holes = new Set();
+  holes: new Set(),
+  trees: new Set(),
+};
 
 const scene = {
   pointer,
   players,
-  holes,
-  trees,
   world,
 };
 
@@ -88,7 +82,9 @@ const render = (scene, dt, time) => {
   // move world to mimic camera
   ctx.save();
   ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  drawHoles(ctx, scene.world.holes);
   drawOtherPlayers(ctx, scene.players.others);
+  drawTrees(ctx, scene.world.trees);
   drawWorld(ctx, scene.world);
   ctx.restore();
 
@@ -165,9 +161,11 @@ socket.on('s:players:update', ({ me, others }) => {
   scene.players.me.sy = me.y;
 });
 
-socket.on('s:world:update', ({ width, height }) => {
+socket.on('s:world:create', ({ width, height, trees, holes }) => {
   scene.world.width = width;
   scene.world.height = height;
+  scene.world.trees = new Set(trees);
+  scene.world.holes = new Set(holes);
 });
 
 loop(0);

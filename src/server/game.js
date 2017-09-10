@@ -10,6 +10,10 @@ const createPlayer = (userId, x, y) => ({
   ay: 0,
 });
 
+const range = (count) => new Array(count).fill();
+
+const createTree = (x, y, r) => ({ x, y, r });
+const createHole = (x, y, r) => ({ x, y, r });
 const createWorld = (width, height) => {
   const world = {
     width,
@@ -18,9 +22,28 @@ const createWorld = (width, height) => {
     holes: new Set(),
   };
 
+  const SIZE = 300;
+  range(Math.floor(width / SIZE)).forEach((_, sx) => {
+    range(Math.floor(height / SIZE)).forEach((_, sy) => {
+      const random = Math.random();
+      if(random <= 0.3) {
+        const radius = Math.random() * (SIZE / 3 - 50) + 50;
+        const space = SIZE - 2 * radius;
+        const x = Math.random() * space;
+        const y = Math.random() * space;
+        world.trees.add(createTree(x + SIZE * sx, y + SIZE * sy, radius));
+      } else if(random > 0.3 && random < 0.6) {
+        const radius = Math.random() * (SIZE / 3 - 50) + 50;
+        const space = SIZE - 2 * radius;
+        const x = Math.random() * space;
+        const y = Math.random() * space;
+        world.holes.add(createHole(x + SIZE * sx, y + SIZE * sy, radius));
+      }
+    })
+  })
+
   return world;
 };
-
 
 const createGame = ({ name, maxUsersCount = 2 } = {}) => {
   const users = new Set();
@@ -112,9 +135,8 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       };
 
       currentUser.socket.emit('s:players:update', { me, others });
-      currentUser.socket.emit('s:world:update', world);
     });
-  }
+  };
 
   const destroy = loop((dt) => {
     update(dt);
@@ -126,6 +148,12 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
     addUser(user) {
       users.add(user);
       user.player = createPlayer(user.socket.id, 500, 500);
+      user.socket.emit('s:world:create', {
+        width: world.width,
+        height: world.height,
+        holes: [...world.holes],
+        trees: [...world.trees],
+      });
     },
     removeUser(user) {
       users.delete(user);

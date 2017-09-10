@@ -23,7 +23,7 @@ export const drawWorld = (context, world) => {
 export const drawTrees = (context, trees) => {
   context.save();
   context.strokeStyle = "#513213";
-  context.lineWidth   = 5;
+  context.lineWidth   = 2;
   context.shadowColor = "#000";
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
@@ -40,11 +40,12 @@ export const drawTrees = (context, trees) => {
 export const drawHoles = (context, holes) => {
   context.save();
   context.strokeStyle = "#e3301a";
-  context.lineWidth   = 5;
+  context.lineWidth   = 2;
   context.shadowColor = "#000";
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 1;
+  context.setLineDash([10,5]);
   holes.forEach(({ x, y, r}) => {
     context.beginPath();
     context.arc(x, y, r, 0, 2 * Math.PI, false);
