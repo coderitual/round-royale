@@ -1,21 +1,27 @@
 import loop from './loop';
 
-const createPlayer = (userId) => ({
+const createPlayer = (userId, x, y) => ({
   userId,
-  x: 0,
-  y: 0,
+  x,
+  y,
   vx: 0,
   vy: 0,
   ax: 0,
   ay: 0,
 });
 
+const createWorld = (width, height) => ({
+  width,
+  height,
+});
+
 const createGame = ({ name, maxUsersCount = 2 } = {}) => {
   const users = new Set();
+  const world = createWorld(2000, 2000);
 
   const update = (dt) => {
-    users.forEach(user => {
-      const { player, pointer } = user;
+    // Players position calculation
+    users.forEach(({ player, pointer }) => {
       if(!pointer) {
         return;
       }
@@ -23,7 +29,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       player.ay = (pointer.y - pointer.ch / 2);
 
       // Dead zone
-      const deadZone = 10;
+      const deadZone = 8;
       if(Math.abs(player.ax) < deadZone) {
         player.ax = 0;
       } else {
@@ -41,11 +47,41 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       player.vx += player.ax * dt / 1000;
       player.vy += player.ay * dt / 1000;
 
+      const speed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
+      const maxSpeed = 30;
+      if(speed > maxSpeed) {
+        const factor = speed / maxSpeed;
+        player.vx /= factor;
+        player.vy /= factor;
+      }
+
       player.vx *= 0.98;
       player.vy *= 0.98;
 
       player.x += player.vx * dt / 100;
       player.y += player.vy * dt / 100;
+    });
+
+    // World boundary players collision
+    users.forEach(({ player }) => {
+      if(player.x < 0) {
+        player.x = 0;
+        player.ax *= -1;
+        player.vx *= -1;
+      } else if (player.x > world.width) {
+        player.x = world.width;
+        player.ax *= -1;
+        player.vx *= -1;
+      }
+      if(player.y < 0) {
+        player.y = 0;
+        player.ay *= -1;
+        player.vy *= -1;
+      } else if (player.y > world.height) {
+        player.y = world.height;
+        player.ay *= -1;
+        player.vy *= -1;
+      }
     });
   };
 
@@ -69,6 +105,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       };
 
       currentUser.socket.emit('s:players:update', { me, others });
+      currentUser.socket.emit('s:world:update', world);
     });
   }
 
@@ -81,7 +118,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
     maxUsersCount,
     addUser(user) {
       users.add(user);
-      user.player = createPlayer(user.socket.id);
+      user.player = createPlayer(user.socket.id, 500, 500);
     },
     removeUser(user) {
       users.delete(user);

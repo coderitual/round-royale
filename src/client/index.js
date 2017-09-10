@@ -1,5 +1,8 @@
 import assets from './assets';
 import input from './input';
+import {
+  drawWorld
+} from './graphics.js'
 
 const hole = document.createElement('img');
 hole.src = assets.hole;
@@ -104,10 +107,16 @@ const players = {
   me: createPlayer('me'),
   others: new Map(),
 };
-console.log(players)
+
+const world = {
+  width: 0,
+  height: 0,
+}
+
 const scene = {
   pointer,
   players,
+  world,
 };
 
 const render = (scene, dt, time) => {
@@ -119,7 +128,6 @@ const render = (scene, dt, time) => {
   // move world instead of player
   ctx.save();
   ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
-
   ctx.drawImage(hole, 0,0, 200, 200);
   ctx.drawImage(hole, 300,200, 100, 100);
 
@@ -134,19 +142,21 @@ const render = (scene, dt, time) => {
   ctx.drawImage(stamp2, 300, 200, 300, 300);
   ctx.globalCompositeOperation = 'source-over';
 
+  ctx.save();
+  ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+  ctx.font = 'bold 12px sans-serif';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = "#000";
+  ctx.shadowOffsetX = 1;
+  ctx.shadowOffsetY = 1;
+  ctx.shadowBlur = 1;
   scene.players.others.forEach((player) => {
     ctx.drawImage(eye, player.x - eye.width / 2, player.y - eye.height / 2);
-
-    ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
-    ctx.font = 'bold 12px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = "black";
-    ctx.shadowOffsetX = 1;
-    ctx.shadowOffsetY = 1;
-    ctx.shadowBlur = 1;
     ctx.fillText(player.username,  player.x, player.y + 15);
   });
+  ctx.restore();
 
+  drawWorld(ctx, scene.world);
   ctx.restore();
 
   const avatar = eyes[Math.round(time / 500) % 5];
@@ -232,6 +242,11 @@ socket.on('s:players:update', ({ me, others }) => {
 
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
+});
+
+socket.on('s:world:update', ({ width, height }) => {
+  scene.world.width = width;
+  scene.world.height = height;
 });
 
 loop(0);
