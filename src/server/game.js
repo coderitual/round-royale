@@ -10,10 +10,17 @@ const createPlayer = (userId, x, y) => ({
   ay: 0,
 });
 
-const createWorld = (width, height) => ({
-  width,
-  height,
-});
+const createWorld = (width, height) => {
+  const world = {
+    width,
+    height,
+    trees: new Set(),
+    holes: new Set(),
+  };
+
+  return world;
+};
+
 
 const createGame = ({ name, maxUsersCount = 2 } = {}) => {
   const users = new Set();

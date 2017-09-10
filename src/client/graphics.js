@@ -73,6 +73,7 @@ export const drawOtherPlayers = (context, players) => {
   context.fillStyle = "rgba(255, 255, 255, 0.7)";
   context.font = 'bold 12px sans-serif';
   context.textAlign = 'center';
+  context.textBaseline = 'top';
   context.shadowColor = "rgba(0, 0, 0, 0.5)";
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;

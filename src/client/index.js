@@ -56,7 +56,7 @@ const createPlayer = ({ id, username = '' }) => ({
   y: 0,
   sx: 0,
   sy: 0,
-})
+});
 
 const players = {
   me: createPlayer('me'),
@@ -67,6 +67,9 @@ const world = {
   width: 0,
   height: 0,
 }
+
+const createTree = ({ x, y, r}) => ({ x, y, r });
+const createHole = ({ x, y, r}) => ({ x, y, r });
 
 const trees = new Set();
 const holes = new Set();
