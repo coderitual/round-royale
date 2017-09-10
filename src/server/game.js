@@ -25,8 +25,8 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       if(!pointer) {
         return;
       }
-      player.ax = (pointer.x - pointer.cw / 2);
-      player.ay = (pointer.y - pointer.ch / 2);
+      player.ax = pointer.x;
+      player.ay = pointer.y;
 
       // Dead zone
       const deadZone = 8;

@@ -90,7 +90,7 @@ const render = (scene, dt, time) => {
   ctx.restore();
 
   drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
-  drawPointer(ctx, scene.pointer);
+  drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
   drawDebugInfo(ctx, { ping });
 };
 
@@ -136,15 +136,8 @@ window.addEventListener("deviceorientation", event => {
     x = -90;
   }
 
-  // To make computation easier we shift the range of
-  // x and y to [0,180]
-  x += 90;
-  y += 90;
-
-  pointer.x = canvas.width * y / 180;
-  pointer.y = canvas.height * x / 180;
-  pointer.cw = canvas.width;
-  pointer.ch = canvas.height;
+  pointer.x = canvas.width / 2 * y / 90;
+  pointer.y = canvas.height / 2 * x / 90;
   socket.emit('c:pointer', pointer);
 });
 
