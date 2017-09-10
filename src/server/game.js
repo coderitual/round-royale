@@ -184,7 +184,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
         const y = user.player.y;
         const vx = user.pointer.x;
         const vy = user.pointer.y;
-        projectiles.add(createProjectile(user, x, y, vx, vy));
+        projectiles.add(createProjectile(x, y, vx, vy));
       });
     },
     removeUser(user) {
