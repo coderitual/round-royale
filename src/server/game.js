@@ -2,8 +2,7 @@ import loop from './loop';
 
 const range = (count) => new Array(count).fill();
 
-const createPlayer = (user, x, y) => ({
-  user,
+const createPlayer = (x, y) => ({
   x,
   y,
   vx: 0,
@@ -12,13 +11,14 @@ const createPlayer = (user, x, y) => ({
   ay: 0,
 });
 
-const createProjectile = (user, x, y, vx, vy) => ({
-  user,
+let projectileId = 0;
+const createProjectile = (x, y, vx, vy) => ({
+  id: projectileId++,
   x,
   y,
   vx,
   vy,
-  created: Date.now(),
+  created: '',
   TTL: 3000,
 });
 
@@ -103,6 +103,16 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       player.y += player.vy * dt / 100;
     });
 
+    projectiles.forEach(projectile => {
+      const speed = Math.sqrt(projectile.vx * projectile.vx + projectile.vy * projectile.vy);
+      const maxSpeed = 60;
+      if(speed > maxSpeed) {
+        const factor = speed / maxSpeed;
+        projectile.vx /= factor;
+        projectile.vy /= factor;
+      }
+    });
+
     // World boundary players collision
     users.forEach(({ player }) => {
       if(player.x < 0) {
@@ -128,24 +138,25 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
 
   const sync = () => {
     users.forEach(currentUser => {
-      const others =
-        [...users]
-          .filter(user => user !== currentUser)
-          .map(user => ({
-            x: user.player.x,
-            y: user.player.y,
-            id: user.socket.id,
-            username: user.username,
-          }));
-
+      const others = [...users]
+        .filter(user => user !== currentUser)
+        .map(user => ({
+          x: user.player.x,
+          y: user.player.y,
+          id: user.socket.id,
+          username: user.username,
+        }));
       const me = {
         x: currentUser.player.x,
         y: currentUser.player.y,
         id: currentUser.socket.id,
         me: true
       };
-
       currentUser.socket.emit('s:players:update', { me, others });
+
+      // const projectilesData = [...projectiles]
+      //   .map(({ id, x, y }) => ({ id, x, y }));
+      // currentUser.socket.emit('s:projectiles:update', projectilesData);
     });
   };
 
@@ -166,9 +177,14 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
         trees: [...world.trees],
       });
       user.socket.on("c:pointer:update", pointer => {
-        if(user.game) {
-          user.pointer = pointer;
-        }
+        user.pointer = pointer;
+      });
+      user.socket.on("c:fire:pressed", () => {
+        const x = user.player.x;
+        const y = user.player.y;
+        const vx = user.pointer.x;
+        const vy = user.pointer.y;
+        //projectiles.add(createProjectile(user, x, y, vx, vy));
       });
     },
     removeUser(user) {

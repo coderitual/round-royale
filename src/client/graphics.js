@@ -5,7 +5,7 @@ export const clear = (context, width, height) => {
   context.globalCompositeOperation = 'source-over';
   context.fillStyle = "#2c5b1e";
   context.fillRect(0, 0, width, height);
-}
+};
 
 export const drawWorld = (context, world) => {
   context.save();
@@ -67,7 +67,7 @@ export const drawPlayer = (context, x, y, time) => {
   context.shadowBlur = 2;
   context.drawImage(sprite,  x - sprite.width / 2, y - sprite.height / 2);
   context.restore();
-}
+};
 
 export const drawOtherPlayers = (context, players) => {
   context.save();
@@ -79,12 +79,22 @@ export const drawOtherPlayers = (context, players) => {
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 1;
-  players.forEach((player) => {
-    context.drawImage(images.eye, player.x - images.eye.width / 2, player.y - images.eye.height / 2);
-    context.fillText(player.username,  player.x, player.y + 15);
+  players.forEach(({ x, y, username }) => {
+    context.drawImage(images.eye, x - images.eye.width / 2, y - images.eye.height / 2);
+    context.fillText(username,  x, y + 15);
   });
   context.restore();
-}
+};
+
+export const drawProjectiles = (context, projectiles) => {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 1)";
+  projectiles.forEach((projectile) => {
+    context.arc(x, y, 5, 0, 2 * Math.PI, false);
+    context.fill();
+  });
+  context.restore();
+};
 
 export const drawPointer = (context, x, y) => {
   context.save();

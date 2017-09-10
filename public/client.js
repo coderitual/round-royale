@@ -1,1 +1,385 @@
-!function(){"use strict";function e(e){if(Array.isArray(e)){for(var t=0,r=Array(e.length);e.length>t;t++)r[t]=e[t];return r}return Array.from(e)}var t=["assets/hole.svg","assets/stamp.svg","assets/tree.svg","assets/eye.svg","assets/stamp2.svg","assets/eye_closed.svg","assets/heart.svg","assets/projectile.svg","assets/arrow.svg","assets/powerup.svg"].reduce(function(e,t){var r=document.createElement("img");return r.src=t,e[/(\w*)\.svg/g.exec(t)[1]]=r,e},{}),r=function(){function e(e,t){var r=[],o=!0,n=!1,s=void 0;try{for(var a,i=e[Symbol.iterator]();!(o=(a=i.next()).done)&&(r.push(a.value),!t||r.length!==t);o=!0);}catch(e){n=!0,s=e}finally{try{!o&&i.return&&i.return()}finally{if(n)throw s}}return r}return function(t,r){if(Array.isArray(t))return t;if(Symbol.iterator in Object(t))return e(t,r);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),o=function(e,t,r){e.globalAlpha=1,e.globalCompositeOperation="source-over",e.fillStyle="#2c5b1e",e.fillRect(0,0,t,r)},n=function(e,t){e.save(),e.strokeStyle="#fff",e.lineWidth=5,e.shadowColor="#000",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=1,e.setLineDash([10,5]),e.strokeRect(0,0,t.width,t.height),e.restore()},s=function(e,t){e.save(),e.strokeStyle="#513213",e.lineWidth=2,e.shadowColor="#000",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=1,e.setLineDash([10,5]),t.forEach(function(t){var r=t.x,o=t.y,n=t.r;e.beginPath(),e.arc(r,o,n,0,2*Math.PI,!1),e.stroke()}),e.restore()},a=function(e,t){e.save(),e.strokeStyle="#e3301a",e.lineWidth=2,e.shadowColor="#000",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=1,e.setLineDash([10,5]),t.forEach(function(t){var r=t.x,o=t.y,n=t.r;e.beginPath(),e.arc(r,o,n,0,2*Math.PI,!1),e.stroke()}),e.restore()},i=[t.eye,t.eye,t.eye,t.eye,t.eye_closed],l=function(e,t,r,o){var n=i[Math.round(o/500)%5];e.save(),e.fillStyle="rgba(255, 255, 255, 0.7)",e.font="bold 12px sans-serif",e.textAlign="center",e.shadowColor="rgba(0, 0, 0, 0.5)",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=2,e.drawImage(n,t-n.width/2,r-n.height/2),e.restore()},h=function(e,r){e.save(),e.fillStyle="rgba(255, 255, 255, 0.7)",e.font="bold 12px sans-serif",e.textAlign="center",e.textBaseline="top",e.shadowColor="rgba(0, 0, 0, 0.5)",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=1,r.forEach(function(r){e.drawImage(t.eye,r.x-t.eye.width/2,r.y-t.eye.height/2),e.fillText(r.username,r.x,r.y+15)}),e.restore()},f=function(e,t,r){e.save(),e.beginPath(),e.arc(t,r,5,0,2*Math.PI,!1),e.fillStyle="rgba(255, 255, 255, 0.5)",e.fill(),e.lineWidth=3,e.strokeStyle="#fff",e.stroke(),e.restore()},d=function(e,t){e.save(),e.fillStyle="rgba(255, 255, 255, 1)",e.font="12px sans-serif",e.textAlign="start",e.textBaseline="top",Object.entries(t).forEach(function(t,o){var n=r(t,2),s=n[0],a=n[1];e.fillText(s+": "+a,10,10+15*o)}),e.restore()},c=function(){function e(e,t){var r=[],o=!0,n=!1,s=void 0;try{for(var a,i=e[Symbol.iterator]();!(o=(a=i.next()).done)&&(r.push(a.value),!t||r.length!==t);o=!0);}catch(e){n=!0,s=e}finally{try{!o&&i.return&&i.return()}finally{if(n)throw s}}return r}return function(t,r){if(Array.isArray(t))return t;if(Symbol.iterator in Object(t))return e(t,r);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),u=document.getElementById("canvas"),y=u.getContext("2d"),w={x:u.width/2,y:u.height/2},g=function(){u.width=u.clientWidth,u.height=u.clientHeight,w.x=u.width/2,w.y=u.height/2};window.addEventListener("resize",g),g();var v=void 0,m=0;(v="8080"===window.location.port?io(window.location.hostname+":3000",{upgrade:!1,transports:["websocket"],query:""+new URL(window.location).searchParams}):io({upgrade:!1,transports:["websocket"],query:""+new URL(window.location).searchParams})).on("pong",function(e){m=e});var p=function(e){var t=e.id,r=e.username;return{id:t,username:void 0===r?"":r,x:0,y:0,sx:0,sy:0}},x={me:p("me"),others:new Map},b={width:0,height:0,holes:new Set,trees:new Set},S={pointer:w,players:x,world:b},O=function(e,t,r){o(y,u.width,u.height),y.save(),y.translate(u.width/2-e.players.me.x,u.height/2-e.players.me.y),a(y,e.world.holes),h(y,e.players.others),s(y,e.world.trees),n(y,e.world),y.restore(),l(y,u.width/2,u.height/2,r),f(y,e.pointer.x+u.width/2,e.pointer.y+u.height/2),d(y,{ping:m})},A=function(e,t){var r=e.players;r.me.x+=(r.me.sx-r.me.x)/5,r.me.y+=(r.me.sy-r.me.y)/5,r.others.forEach(function(e){e.x+=(e.sx-e.x)/5,e.y+=(e.sy-e.y)/5})},E=0,k=void 0;window.addEventListener("deviceorientation",function(e){k||(k={beta:e.beta,gamma:e.gamma});var t=e.beta-k.beta,r=e.gamma-k.gamma;t>90&&(t=90),-90>t&&(t=-90),w.x=u.width/2*r/90,w.y=u.height/2*t/90,v.emit("c:pointer:update",w)}),document.addEventListener("touchstart",function(){v.emit("c:fire:pressed",w)}),v.on("s:players:update",function(t){var r=t.me,o=t.others;S.players.others=new Map([].concat(e(S.players.others)).filter(function(e){var t=c(e,1)[0];return null!=o.find(function(e){return e.id===t})})),o.forEach(function(e){var t=S.players.others.get(e.id);if(!t)return t=p(e),void S.players.others.set(e.id,t);t.sx=e.x,t.sy=e.y}),S.players.me.sx=r.x,S.players.me.sy=r.y}),v.on("s:world:create",function(e){var t=e.width,r=e.height,o=e.trees,n=e.holes;S.world.width=t,S.world.height=r,S.world.trees=new Set(o),S.world.holes=new Set(n)}),function e(t){requestAnimationFrame(e);A(S),O(S,0,t),E=t}(0)}();
+(function () {
+'use strict';
+
+var assets = ['assets/hole.svg', 'assets/stamp.svg', 'assets/tree.svg', 'assets/eye.svg', 'assets/stamp2.svg', 'assets/eye_closed.svg', 'assets/heart.svg', 'assets/projectile.svg', 'assets/arrow.svg', 'assets/powerup.svg'];
+
+var images = assets.reduce(function (images, asset) {
+  var image = document.createElement('img');
+  image.src = asset;
+  var imageName = /(\w*)\.svg/g.exec(asset)[1];
+  images[imageName] = image;
+  return images;
+}, {});
+
+var _slicedToArray$1 = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var clear = function clear(context, width, height) {
+  context.globalAlpha = 1;
+  context.globalCompositeOperation = 'source-over';
+  context.fillStyle = "#2c5b1e";
+  context.fillRect(0, 0, width, height);
+};
+
+var drawWorld = function drawWorld(context, world) {
+  context.save();
+  context.strokeStyle = "#fff";
+  context.lineWidth = 5;
+  context.shadowColor = "#000";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  context.setLineDash([10, 5]);
+  context.strokeRect(0, 0, world.width, world.height);
+  context.restore();
+};
+
+var drawTrees = function drawTrees(context, trees) {
+  context.save();
+  context.strokeStyle = "#513213";
+  context.lineWidth = 2;
+  context.shadowColor = "#000";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  context.setLineDash([10, 5]);
+  trees.forEach(function (_ref) {
+    var x = _ref.x,
+        y = _ref.y,
+        r = _ref.r;
+
+    context.beginPath();
+    context.arc(x, y, r, 0, 2 * Math.PI, false);
+    context.stroke();
+  });
+  context.restore();
+};
+
+var drawHoles = function drawHoles(context, holes) {
+  context.save();
+  context.strokeStyle = "#e3301a";
+  context.lineWidth = 2;
+  context.shadowColor = "#000";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  context.setLineDash([10, 5]);
+  holes.forEach(function (_ref2) {
+    var x = _ref2.x,
+        y = _ref2.y,
+        r = _ref2.r;
+
+    context.beginPath();
+    context.arc(x, y, r, 0, 2 * Math.PI, false);
+    context.stroke();
+  });
+  context.restore();
+};
+
+var playerSprite = [images.eye, images.eye, images.eye, images.eye, images.eye_closed];
+var drawPlayer = function drawPlayer(context, x, y, time) {
+  var sprite = playerSprite[Math.round(time / 500) % 5];
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.7)";
+  context.font = 'bold 12px sans-serif';
+  context.textAlign = 'center';
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 2;
+  context.drawImage(sprite, x - sprite.width / 2, y - sprite.height / 2);
+  context.restore();
+};
+
+var drawOtherPlayers = function drawOtherPlayers(context, players) {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.7)";
+  context.font = 'bold 12px sans-serif';
+  context.textAlign = 'center';
+  context.textBaseline = 'top';
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  players.forEach(function (_ref3) {
+    var x = _ref3.x,
+        y = _ref3.y,
+        username = _ref3.username;
+
+    context.drawImage(images.eye, x - images.eye.width / 2, y - images.eye.height / 2);
+    context.fillText(username, x, y + 15);
+  });
+  context.restore();
+};
+
+var drawProjectiles = function drawProjectiles(context, projectiles) {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 1)";
+  projectiles.forEach(function (projectile) {
+    context.arc(x, y, 5, 0, 2 * Math.PI, false);
+    context.fill();
+  });
+  context.restore();
+};
+
+var drawPointer = function drawPointer(context, x, y) {
+  context.save();
+  context.beginPath();
+  context.arc(x, y, 5, 0, 2 * Math.PI, false);
+  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+  context.fill();
+  context.lineWidth = 3;
+  context.strokeStyle = "#fff";
+  context.stroke();
+  context.restore();
+};
+
+var drawDebugInfo = function drawDebugInfo(context, info) {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 1)";
+  context.font = '12px sans-serif';
+  context.textAlign = 'start';
+  context.textBaseline = 'top';
+  Object.entries(info).forEach(function (_ref4, index) {
+    var _ref5 = _slicedToArray$1(_ref4, 2),
+        key = _ref5[0],
+        value = _ref5[1];
+
+    context.fillText(key + ': ' + value, 10, 10 + index * 15);
+  });
+  context.restore();
+};
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+var pointer = {
+  x: canvas.width / 2,
+  y: canvas.height / 2
+};
+
+var initGfx = function initGfx() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  pointer.x = canvas.width / 2;
+  pointer.y = canvas.height / 2;
+};
+
+window.addEventListener("resize", initGfx);
+initGfx();
+
+var socket = void 0;
+if (window.location.port === '8080') {
+  socket = io(window.location.hostname + ':3000', {
+    upgrade: false,
+    transports: ["websocket"],
+    query: '' + new URL(window.location).searchParams
+  });
+} else {
+  socket = io({
+    upgrade: false,
+    transports: ["websocket"],
+    query: '' + new URL(window.location).searchParams
+  });
+}
+
+var ping = 0;
+
+socket.on('pong', function (ms) {
+  ping = ms;
+});
+
+var createPlayer = function createPlayer(_ref) {
+  var id = _ref.id,
+      _ref$username = _ref.username,
+      username = _ref$username === undefined ? '' : _ref$username;
+  return {
+    id: id,
+    username: username,
+    x: 0,
+    y: 0,
+    sx: 0,
+    sy: 0
+  };
+};
+
+var createProjectile = function createProjectile(_ref2) {
+  var id = _ref2.id,
+      x = _ref2.x,
+      y = _ref2.y;
+  return {
+    x: 0,
+    y: 0,
+    sx: 0,
+    sy: 0
+  };
+};
+
+var players = {
+  me: createPlayer('me'),
+  others: new Map()
+};
+
+var projectiles = new Map();
+
+var world = {
+  width: 0,
+  height: 0,
+  holes: new Set(),
+  trees: new Set()
+};
+
+var scene = {
+  pointer: pointer,
+  players: players,
+  projectiles: projectiles,
+  world: world
+};
+
+var render = function render(scene, dt, time) {
+  clear(ctx, canvas.width, canvas.height);
+
+  // Move the world to mimic camera
+  ctx.save();
+  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  drawHoles(ctx, scene.world.holes);
+  drawProjectiles(ctx, scene.projectiles);
+  drawOtherPlayers(ctx, scene.players.others);
+  drawTrees(ctx, scene.world.trees);
+  drawWorld(ctx, scene.world);
+  ctx.restore();
+
+  drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
+  drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
+  drawDebugInfo(ctx, { ping: ping });
+};
+
+var update = function update(scene, dt) {
+  var players = scene.players,
+      projectiles = scene.projectiles;
+  // Add easing to compensate lag
+
+  var STRENGTH = 5;
+  players.me.x += (players.me.sx - players.me.x) / STRENGTH;
+  players.me.y += (players.me.sy - players.me.y) / STRENGTH;
+
+  players.others.forEach(function (player) {
+    player.x += (player.sx - player.x) / STRENGTH;
+    player.y += (player.sy - player.y) / STRENGTH;
+  });
+
+  projectiles.forEach(function (projectile) {
+    projectile.x += (projectile.sx - projectile.x) / STRENGTH;
+    projectile.y += (projectile.sy - projectile.y) / STRENGTH;
+  });
+};
+
+var oldTime = 0;
+var loop = function loop(time) {
+  requestAnimationFrame(loop);
+  var dt = time - oldTime;
+  update(scene, dt, time);
+  render(scene, dt, time);
+  oldTime = time;
+};
+
+var origin = void 0;
+window.addEventListener("deviceorientation", function (event) {
+  if (!origin) {
+    origin = {
+      beta: event.beta,
+      gamma: event.gamma
+    };
+  }
+
+  var x = event.beta - origin.beta; // In degree in the range [-180,180]
+  var y = event.gamma - origin.gamma; // In degree in the range [-90,90]
+
+  // Because we don't want to have the device upside down
+  // We constrain the x value to the range [-90,90]
+  if (x > 90) {
+    x = 90;
+  }
+  if (x < -90) {
+    x = -90;
+  }
+
+  pointer.x = canvas.width / 2 * y / 90;
+  pointer.y = canvas.height / 2 * x / 90;
+  socket.emit('c:pointer:update', pointer);
+});
+
+document.addEventListener('touchstart', function () {
+  socket.emit('c:fire:pressed');
+});
+
+socket.on('s:players:update', function (_ref3) {
+  var me = _ref3.me,
+      others = _ref3.others;
+
+  // Filter out removed players
+  scene.players.others = new Map([].concat(_toConsumableArray(scene.players.others)).filter(function (_ref4) {
+    var _ref5 = _slicedToArray(_ref4, 1),
+        id = _ref5[0];
+
+    return others.find(function (playerData) {
+      return playerData.id === id;
+    }) != null;
+  }));
+  // Update players data and add already joined players
+  others.forEach(function (playerData) {
+    var player = scene.players.others.get(playerData.id);
+    if (!player) {
+      player = createPlayer(playerData);
+      scene.players.others.set(playerData.id, player);
+      return;
+    }
+    player.sx = playerData.x;
+    player.sy = playerData.y;
+  });
+
+  scene.players.me.sx = me.x;
+  scene.players.me.sy = me.y;
+});
+
+socket.on('s:projectiles:update', function (projectiles) {
+  // Filter out removed projectiles
+  scene.projectiles = new Map([].concat(_toConsumableArray(scene.projectiles)).filter(function (_ref6) {
+    var _ref7 = _slicedToArray(_ref6, 1),
+        id = _ref7[0];
+
+    return projectiles.find(function (projectileData) {
+      return projectileData.id === id;
+    }) != null;
+  }));
+  // Update projectiles data and add new projectiles
+  projectiles.forEach(function (projectileData) {
+    var projectile = scene.projectiles.get(projectileData.id);
+    if (!projectile) {
+      player = createProjectile(projectileData);
+      scene.projectiles.set(projectileData.id, projectile);
+      return;
+    }
+    projectile.sx = projectileData.x;
+    projectile.sy = projectileData.y;
+  });
+});
+
+socket.on('s:world:create', function (_ref8) {
+  var width = _ref8.width,
+      height = _ref8.height,
+      trees = _ref8.trees,
+      holes = _ref8.holes;
+
+  scene.world.width = width;
+  scene.world.height = height;
+  scene.world.trees = new Set(trees);
+  scene.world.holes = new Set(holes);
+});
+
+loop(0);
+
+}());

@@ -6,6 +6,7 @@ import {
   drawOtherPlayers,
   drawHoles,
   drawTrees,
+  drawProjectiles,
   drawPointer,
   drawDebugInfo
 } from './graphics.js'
@@ -58,10 +59,19 @@ const createPlayer = ({ id, username = '' }) => ({
   sy: 0,
 });
 
+const createProjectile = ({ id, x, y }) => ({
+  x: 0,
+  y: 0,
+  sx: 0,
+  sy: 0,
+});
+
 const players = {
   me: createPlayer('me'),
   others: new Map(),
 };
+
+const projectiles = new Map();
 
 const world = {
   width: 0,
@@ -73,16 +83,18 @@ const world = {
 const scene = {
   pointer,
   players,
+  projectiles,
   world,
 };
 
 const render = (scene, dt, time) => {
   clear(ctx, canvas.width, canvas.height);
 
-  // move world to mimic camera
+  // Move the world to mimic camera
   ctx.save();
   ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
   drawHoles(ctx, scene.world.holes);
+  drawProjectiles(ctx, scene.projectiles);
   drawOtherPlayers(ctx, scene.players.others);
   drawTrees(ctx, scene.world.trees);
   drawWorld(ctx, scene.world);
@@ -94,14 +106,20 @@ const render = (scene, dt, time) => {
 };
 
 const update = (scene, dt) => {
-  const { players } = scene;
+  const { players, projectiles } = scene;
   // Add easing to compensate lag
-  players.me.x += (players.me.sx - players.me.x) / 5;
-  players.me.y += (players.me.sy - players.me.y) / 5;
+  const STRENGTH = 5;
+  players.me.x += (players.me.sx - players.me.x) / STRENGTH;
+  players.me.y += (players.me.sy - players.me.y) / STRENGTH;
 
   players.others.forEach(player => {
-    player.x += (player.sx - player.x) / 5;
-    player.y += (player.sy - player.y) / 5;
+    player.x += (player.sx - player.x) / STRENGTH;
+    player.y += (player.sy - player.y) / STRENGTH;
+  });
+
+  projectiles.forEach(projectile => {
+    projectile.x += (projectile.sx - projectile.x) / STRENGTH;
+    projectile.y += (projectile.sy - projectile.y) / STRENGTH;
   });
 };
 
@@ -141,7 +159,7 @@ window.addEventListener("deviceorientation", event => {
 });
 
 document.addEventListener('touchstart', () => {
-  socket.emit('c:fire:pressed', pointer);
+  socket.emit('c:fire:pressed');
 });
 
 socket.on('s:players:update', ({ me, others }) => {
@@ -149,7 +167,7 @@ socket.on('s:players:update', ({ me, others }) => {
   scene.players.others = new Map([...scene.players.others].filter(([id]) => {
     return others.find(playerData => playerData.id === id) != null;
   }));
-  // Update players data and add already joined player
+  // Update players data and add already joined players
   others.forEach((playerData) => {
     let player = scene.players.others.get(playerData.id);
     if(!player) {
@@ -163,6 +181,24 @@ socket.on('s:players:update', ({ me, others }) => {
 
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
+});
+
+socket.on('s:projectiles:update', (projectiles) => {
+  // Filter out removed projectiles
+  scene.projectiles = new Map([...scene.projectiles].filter(([id]) => {
+    return projectiles.find(projectileData => projectileData.id === id) != null;
+  }));
+  // Update projectiles data and add new projectiles
+  projectiles.forEach((projectileData) => {
+    let projectile = scene.projectiles.get(projectileData.id);
+    if(!projectile) {
+      player = createProjectile(projectileData);
+      scene.projectiles.set(projectileData.id, projectile);
+      return;
+    }
+    projectile.sx = projectileData.x;
+    projectile.sy = projectileData.y;
+  });
 });
 
 socket.on('s:world:create', ({ width, height, trees, holes }) => {
