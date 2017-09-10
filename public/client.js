@@ -1,1 +1,285 @@
-!function(){"use strict";function e(e){if(Array.isArray(e)){for(var t=0,r=Array(e.length);e.length>t;t++)r[t]=e[t];return r}return Array.from(e)}var t={hole:"assets/hole.svg",stamp:"assets/stamp.svg",tree:"assets/tree.svg",eye:"assets/eye.svg",stamp2:"assets/stamp2.svg",eye_closed:"assets/eye_closed.svg",heart:"assets/heart.svg",projectile:"assets/projectile.svg",arrow:"assets/arrow.svg",powerup:"assets/powerup.svg"},r=function(e,t){e.save(),e.strokeStyle="#fff",e.lineWidth=5,e.shadowColor="#000",e.shadowOffsetX=1,e.shadowOffsetY=1,e.shadowBlur=1,e.setLineDash([10,5]),e.strokeRect(0,0,t.width,t.height),e.restore()},a=function(){function e(e,t){var r=[],a=!0,o=!1,i=void 0;try{for(var n,s=e[Symbol.iterator]();!(a=(n=s.next()).done)&&(r.push(n.value),!t||r.length!==t);a=!0);}catch(e){o=!0,i=e}finally{try{!a&&s.return&&s.return()}finally{if(o)throw i}}return r}return function(t,r){if(Array.isArray(t))return t;if(Symbol.iterator in Object(t))return e(t,r);throw new TypeError("Invalid attempt to destructure non-iterable instance")}}(),o=document.createElement("img");o.src=t.hole,o.addEventListener("load",function(){var e=o.width,t=o.height;console.log({width:e,height:t})});var i=document.createElement("img");i.src=t.stamp,i.addEventListener("load",function(){var e=i.width,t=i.height;console.log({width:e,height:t})});var n=document.createElement("img");n.src=t.stamp2,n.addEventListener("load",function(){var e=n.width,t=n.height;console.log({width:e,height:t})});var s=document.createElement("img");s.src=t.tree,s.addEventListener("load",function(){var e=s.width,t=s.height;console.log({width:e,height:t})});var h=document.createElement("img");h.src=t.eye,h.addEventListener("load",function(){var e=h.width,t=h.height;console.log({width:e,height:t})});var d=document.createElement("img");d.src=t.eye_closed,d.addEventListener("load",function(){var e=d.width,t=d.height;console.log({width:e,height:t})});var l=document.createElement("img");l.src=t.powerup,l.addEventListener("load",function(){var e=l.width,t=l.height;console.log({width:e,height:t})});var c=[h,h,h,h,d],g=document.getElementById("canvas"),w=g.getContext("2d"),u={x:g.width/2,y:g.height/2},m=function(){g.width=g.clientWidth,g.height=g.clientHeight,u.x=g.width/2,u.y=g.height/2};window.addEventListener("resize",m),m();var f=void 0,v=0;(f="8080"===window.location.port?io(window.location.hostname+":3000",{upgrade:!1,transports:["websocket"],query:""+new URL(window.location).searchParams}):io({upgrade:!1,transports:["websocket"],query:""+new URL(window.location).searchParams})).on("pong",function(e){v=e});var y=function(e){var t=e.id,r=e.username;return{id:t,username:void 0===r?"":r,x:0,y:0,sx:0,sy:0}},p={me:y("me"),others:new Map},x={pointer:u,players:p,world:{width:0,height:0}},E=function(e,t,a){w.globalAlpha=1,w.globalCompositeOperation="source-over",w.fillStyle="#2c5b1e",w.fillRect(0,0,g.width,g.height),w.save(),w.translate(g.width/2-e.players.me.x,g.height/2-e.players.me.y),w.drawImage(o,0,0,200,200),w.drawImage(o,300,200,100,100),w.drawImage(l,300,50),w.drawImage(s,20,200),w.drawImage(s,250,300),w.drawImage(s,90,400,246,314),w.globalCompositeOperation="soft-light",w.drawImage(i,-100,-200,500,500),w.drawImage(n,300,200,300,300),w.globalCompositeOperation="source-over",w.save(),w.fillStyle="rgba(255, 255, 255, 0.7)",w.font="bold 12px sans-serif",w.textAlign="center",w.shadowColor="#000",w.shadowOffsetX=1,w.shadowOffsetY=1,w.shadowBlur=1,e.players.others.forEach(function(e){w.drawImage(h,e.x-h.width/2,e.y-h.height/2),w.fillText(e.username,e.x,e.y+15)}),w.restore(),r(w,e.world),w.restore();var d=c[Math.round(a/500)%5];w.drawImage(d,g.width/2-h.width/2,g.height/2-h.height/2),w.beginPath(),w.arc(e.pointer.x,e.pointer.y,5,0,2*Math.PI,!1),w.fillStyle="rgba(255, 255, 255, 0.5)",w.fill(),w.lineWidth=3,w.strokeStyle="#fff",w.stroke(),w.fillStyle="rgba(255, 255, 255, 1)",w.font="12px sans-serif",w.textAlign="start",w.textBaseline="top",w.fillText("ping: "+v,10,10)},b=function(e,t){var r=e.players;r.me.x+=(r.me.sx-r.me.x)/5,r.me.y+=(r.me.sy-r.me.y)/5,r.others.forEach(function(e){e.x+=(e.sx-e.x)/5,e.y+=(e.sy-e.y)/5})},I=0;window.addEventListener("deviceorientation",function(e){var t=e.beta,r=e.gamma;t>90&&(t=90),-90>t&&(t=-90),t+=90,r+=90,u.x=g.width*r/180,u.y=g.height*t/180,u.cw=g.width,u.ch=g.height,f.emit("c:pointer",u)}),f.on("s:players:update",function(t){var r=t.me,o=t.others;x.players.others=new Map([].concat(e(x.players.others)).filter(function(e){var t=a(e,1)[0];return null!=o.find(function(e){return e.id===t})})),o.forEach(function(e){var t=x.players.others.get(e.id);if(!t)return t=y(e),void x.players.others.set(e.id,t);t.sx=e.x,t.sy=e.y}),x.players.me.sx=r.x,x.players.me.sy=r.y}),f.on("s:world:update",function(e){var t=e.width,r=e.height;x.world.width=t,x.world.height=r}),function e(t){requestAnimationFrame(e);b(x),E(x,0,t),I=t}(0)}();
+(function () {
+'use strict';
+
+var assets = ['assets/hole.svg', 'assets/stamp.svg', 'assets/tree.svg', 'assets/eye.svg', 'assets/stamp2.svg', 'assets/eye_closed.svg', 'assets/heart.svg', 'assets/projectile.svg', 'assets/arrow.svg', 'assets/powerup.svg'];
+
+var images = assets.reduce(function (images, asset) {
+  var image = document.createElement('img');
+  image.src = asset;
+  var imageName = /(\w*)\.svg/g.exec(asset)[1];
+  images[imageName] = image;
+  return images;
+}, {});
+
+var _slicedToArray$1 = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+var clear = function clear(context, width, height) {
+  context.globalAlpha = 1;
+  context.globalCompositeOperation = 'source-over';
+  context.fillStyle = "#2c5b1e";
+  context.fillRect(0, 0, width, height);
+};
+
+var drawWorld = function drawWorld(context, world) {
+  context.save();
+  context.strokeStyle = "#fff";
+  context.lineWidth = 5;
+  context.shadowColor = "#000";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  context.setLineDash([10, 5]);
+  context.strokeRect(0, 0, world.width, world.height);
+  context.restore();
+};
+
+
+
+
+var playerSprite = [images.eye, images.eye, images.eye, images.eye, images.eye_closed];
+var drawPlayer = function drawPlayer(context, x, y, time) {
+  var sprite = playerSprite[Math.round(time / 500) % 5];
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.7)";
+  context.font = 'bold 12px sans-serif';
+  context.textAlign = 'center';
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 2;
+  context.drawImage(sprite, x - sprite.width / 2, y - sprite.height / 2);
+  context.restore();
+};
+
+var drawOtherPlayers = function drawOtherPlayers(context, players) {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.7)";
+  context.font = 'bold 12px sans-serif';
+  context.textAlign = 'center';
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  players.forEach(function (player) {
+    context.drawImage(images.eye, player.x - images.eye.width / 2, player.y - images.eye.height / 2);
+    context.fillText(player.username, player.x, player.y + 15);
+  });
+  context.restore();
+};
+
+var drawPointer = function drawPointer(context, pointer) {
+  context.save();
+  context.beginPath();
+  context.arc(pointer.x, pointer.y, 5, 0, 2 * Math.PI, false);
+  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+  context.fill();
+  context.lineWidth = 3;
+  context.strokeStyle = "#fff";
+  context.stroke();
+  context.restore();
+};
+
+var drawDebugInfo = function drawDebugInfo(context, info) {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 1)";
+  context.font = '12px sans-serif';
+  context.textAlign = 'start';
+  context.textBaseline = 'top';
+  Object.entries(info).forEach(function (_ref, index) {
+    var _ref2 = _slicedToArray$1(_ref, 2),
+        key = _ref2[0],
+        value = _ref2[1];
+
+    context.fillText(key + ': ' + value, 10, 10 + index * 15);
+  });
+  context.restore();
+};
+
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+
+var pointer = {
+  x: canvas.width / 2,
+  y: canvas.height / 2
+};
+
+var initGfx = function initGfx() {
+  canvas.width = canvas.clientWidth;
+  canvas.height = canvas.clientHeight;
+  pointer.x = canvas.width / 2;
+  pointer.y = canvas.height / 2;
+};
+
+window.addEventListener("resize", initGfx);
+initGfx();
+
+var socket = void 0;
+if (window.location.port === '8080') {
+  socket = io(window.location.hostname + ':3000', {
+    upgrade: false,
+    transports: ["websocket"],
+    query: '' + new URL(window.location).searchParams
+  });
+} else {
+  socket = io({
+    upgrade: false,
+    transports: ["websocket"],
+    query: '' + new URL(window.location).searchParams
+  });
+}
+
+var ping = 0;
+
+socket.on('pong', function (ms) {
+  ping = ms;
+});
+
+var createPlayer = function createPlayer(_ref) {
+  var id = _ref.id,
+      _ref$username = _ref.username,
+      username = _ref$username === undefined ? '' : _ref$username;
+  return {
+    id: id,
+    username: username,
+    x: 0,
+    y: 0,
+    sx: 0,
+    sy: 0
+  };
+};
+
+var players = {
+  me: createPlayer('me'),
+  others: new Map()
+};
+
+var world = {
+  width: 0,
+  height: 0
+};
+
+var trees = new Set();
+var holes = new Set();
+
+var scene = {
+  pointer: pointer,
+  players: players,
+  holes: holes,
+  trees: trees,
+  world: world
+};
+
+var render = function render(scene, dt, time) {
+  clear(ctx, canvas.width, canvas.height);
+
+  // move world to mimic camera
+  ctx.save();
+  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  drawOtherPlayers(ctx, scene.players.others);
+  drawWorld(ctx, scene.world);
+  ctx.restore();
+
+  drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
+  drawPointer(ctx, scene.pointer);
+  drawDebugInfo(ctx, { ping: ping });
+};
+
+var update = function update(scene, dt) {
+  var players = scene.players;
+  // Add easing to compensate lag
+
+  players.me.x += (players.me.sx - players.me.x) / 5;
+  players.me.y += (players.me.sy - players.me.y) / 5;
+
+  players.others.forEach(function (player) {
+    player.x += (player.sx - player.x) / 5;
+    player.y += (player.sy - player.y) / 5;
+  });
+};
+
+var oldTime = 0;
+var loop = function loop(time) {
+  requestAnimationFrame(loop);
+  var dt = time - oldTime;
+  update(scene, dt, time);
+  render(scene, dt, time);
+  oldTime = time;
+};
+
+var origin = void 0;
+window.addEventListener("deviceorientation", function (event) {
+  if (!origin) {
+    origin = {
+      beta: event.beta,
+      gamma: event.gamma
+    };
+  }
+
+  var x = event.beta - origin.beta; // In degree in the range [-180,180]
+  var y = event.gamma - origin.gamma; // In degree in the range [-90,90]
+
+  // Because we don't want to have the device upside down
+  // We constrain the x value to the range [-90,90]
+  if (x > 90) {
+    x = 90;
+  }
+  if (x < -90) {
+    x = -90;
+  }
+
+  // To make computation easier we shift the range of
+  // x and y to [0,180]
+  x += 90;
+  y += 90;
+
+  pointer.x = canvas.width * y / 180;
+  pointer.y = canvas.height * x / 180;
+  pointer.cw = canvas.width;
+  pointer.ch = canvas.height;
+  socket.emit('c:pointer', pointer);
+});
+
+socket.on('s:players:update', function (_ref2) {
+  var me = _ref2.me,
+      others = _ref2.others;
+
+  // Filter out removed players
+  scene.players.others = new Map([].concat(_toConsumableArray(scene.players.others)).filter(function (_ref3) {
+    var _ref4 = _slicedToArray(_ref3, 1),
+        id = _ref4[0];
+
+    return others.find(function (playerData) {
+      return playerData.id === id;
+    }) != null;
+  }));
+  // Update players data and add already joined player
+  others.forEach(function (playerData) {
+    var player = scene.players.others.get(playerData.id);
+    if (!player) {
+      player = createPlayer(playerData);
+      scene.players.others.set(playerData.id, player);
+      return;
+    }
+    player.sx = playerData.x;
+    player.sy = playerData.y;
+  });
+
+  scene.players.me.sx = me.x;
+  scene.players.me.sy = me.y;
+});
+
+socket.on('s:world:update', function (_ref5) {
+  var width = _ref5.width,
+      height = _ref5.height;
+
+  scene.world.width = width;
+  scene.world.height = height;
+});
+
+loop(0);
+
+}());
