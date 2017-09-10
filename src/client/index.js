@@ -137,7 +137,11 @@ window.addEventListener("deviceorientation", event => {
 
   pointer.x = canvas.width / 2 * y / 90;
   pointer.y = canvas.height / 2 * x / 90;
-  socket.emit('c:pointer', pointer);
+  socket.emit('c:pointer:update', pointer);
+});
+
+document.addEventListener('touchstart', () => {
+  socket.emit('c:fire:pressed', pointer);
 });
 
 socket.on('s:players:update', ({ me, others }) => {

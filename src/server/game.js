@@ -1,7 +1,9 @@
 import loop from './loop';
 
-const createPlayer = (userId, x, y) => ({
-  userId,
+const range = (count) => new Array(count).fill();
+
+const createPlayer = (user, x, y) => ({
+  user,
   x,
   y,
   vx: 0,
@@ -10,7 +12,15 @@ const createPlayer = (userId, x, y) => ({
   ay: 0,
 });
 
-const range = (count) => new Array(count).fill();
+const createProjectile = (user, x, y, vx, vy) => ({
+  user,
+  x,
+  y,
+  vx,
+  vy,
+  created: Date.now(),
+  TTL: 3000,
+});
 
 const createTree = (x, y, r) => ({ x, y, r });
 const createHole = (x, y, r) => ({ x, y, r });
@@ -47,6 +57,7 @@ const createWorld = (width, height) => {
 
 const createGame = ({ name, maxUsersCount = 2 } = {}) => {
   const users = new Set();
+  const projectiles = new Set();
   const world = createWorld(2000, 2000);
 
   const update = (dt) => {
@@ -147,12 +158,17 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
     maxUsersCount,
     addUser(user) {
       users.add(user);
-      user.player = createPlayer(user.socket.id, 500, 500);
+      user.player = createPlayer(user, 500, 500);
       user.socket.emit('s:world:create', {
         width: world.width,
         height: world.height,
         holes: [...world.holes],
         trees: [...world.trees],
+      });
+      user.socket.on("c:pointer:update", pointer => {
+        if(user.game) {
+          user.pointer = pointer;
+        }
       });
     },
     removeUser(user) {
