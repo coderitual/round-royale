@@ -60,8 +60,9 @@ const createPlayer = ({ id, username = '' }) => ({
 });
 
 const createProjectile = ({ id, x, y }) => ({
-  x: 0,
-  y: 0,
+  id,
+  x,
+  y,
   sx: 0,
   sy: 0,
 });
@@ -173,7 +174,6 @@ socket.on('s:players:update', ({ me, others }) => {
     if(!player) {
       player = createPlayer(playerData);
       scene.players.others.set(playerData.id, player);
-      return;
     }
     player.sx = playerData.x;
     player.sy = playerData.y;
@@ -192,10 +192,10 @@ socket.on('s:projectiles:update', (projectiles) => {
   projectiles.forEach((projectileData) => {
     let projectile = scene.projectiles.get(projectileData.id);
     if(!projectile) {
-      player = createProjectile(projectileData);
+      projectile = createProjectile(projectileData);
       scene.projectiles.set(projectileData.id, projectile);
-      return;
     }
+
     projectile.sx = projectileData.x;
     projectile.sy = projectileData.y;
   });

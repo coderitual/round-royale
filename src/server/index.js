@@ -31,6 +31,11 @@ export default socket => {
   socket.on("disconnect", () => {
     console.log(`disconnect: ${socket.id}`);
     users.delete(user);
-    user.game.removeUser(user);
+    const { game } = user;
+    game.removeUser(user);
+    if(game.usersCount === 0) {
+      game.destroy();
+      games.delete(game);
+    }
   });
 };

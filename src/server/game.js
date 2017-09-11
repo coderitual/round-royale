@@ -55,12 +55,12 @@ const createWorld = (width, height) => {
   return world;
 };
 
-const createGame = ({ name, maxUsersCount = 2 } = {}) => {
+const createGame = ({ name, maxUsersCount = 6 } = {}) => {
   const users = new Set();
-  const projectiles = new Set();
   const world = createWorld(2000, 2000);
+  let projectiles = new Set();
 
-  const update = (dt) => {
+  const update = (dt, time = Date.now()) => {
     // Players position calculation
     users.forEach(({ player, pointer }) => {
       if(!pointer) {
@@ -103,14 +103,14 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       player.y += player.vy * dt / 100;
     });
 
+
+    projectiles = new Set([...projectiles].filter(projectile => {
+      return time - projectile.created < projectile.TTL;
+    }));
+
     projectiles.forEach(projectile => {
-      const speed = Math.sqrt(projectile.vx * projectile.vx + projectile.vy * projectile.vy);
-      const maxSpeed = 60;
-      if(speed > maxSpeed) {
-        const factor = speed / maxSpeed;
-        projectile.vx /= factor;
-        projectile.vy /= factor;
-      }
+      projectile.x += projectile.vx * dt / 100;
+      projectile.y += projectile.vy * dt / 100;
     });
 
     // World boundary players collision
@@ -167,6 +167,7 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
 
   return {
     maxUsersCount,
+    destroy,
     addUser(user) {
       users.add(user);
       user.player = createPlayer(500, 500);
@@ -182,8 +183,15 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
       user.socket.on("c:fire:pressed", () => {
         const x = user.player.x;
         const y = user.player.y;
-        const vx = user.pointer.x;
-        const vy = user.pointer.y;
+        let vx = user.pointer.x;
+        let vy = user.pointer.y;
+        const speed = Math.sqrt(vx * vx + vy * vy);
+        vx /= speed;
+        vy /= speed;
+
+        const newSpeed = 60;
+        vx *= newSpeed;
+        vy *= newSpeed;
         projectiles.add(createProjectile(x, y, vx, vy));
       });
     },
@@ -193,9 +201,6 @@ const createGame = ({ name, maxUsersCount = 2 } = {}) => {
     get usersCount() {
       return users.size;
     },
-    destroy() {
-      clearInterval(interval);
-    }
   }
 };
 

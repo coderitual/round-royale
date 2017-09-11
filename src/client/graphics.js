@@ -89,8 +89,13 @@ export const drawOtherPlayers = (context, players) => {
 export const drawProjectiles = (context, projectiles) => {
   context.save();
   context.fillStyle = "rgba(255, 255, 255, 1)";
-  projectiles.forEach((projectile) => {
-    context.arc(x, y, 5, 0, 2 * Math.PI, false);
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  projectiles.forEach(({ x, y }) => {
+    context.beginPath();
+    context.arc(x, y, 3, 0, 2 * Math.PI, false);
     context.fill();
   });
   context.restore();
@@ -98,12 +103,15 @@ export const drawProjectiles = (context, projectiles) => {
 
 export const drawPointer = (context, x, y) => {
   context.save();
-  context.beginPath();
-  context.arc(x, y, 5, 0, 2 * Math.PI, false);
   context.fillStyle = "rgba(255, 255, 255, 0.5)";
-  context.fill();
   context.lineWidth = 3;
   context.strokeStyle = "#fff";
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 2;
+  context.beginPath();
+  context.arc(x, y, 5, 0, 2 * Math.PI, false);
   context.stroke();
   context.restore();
 };
