@@ -19,7 +19,7 @@ const createProjectile = (x, y, vx, vy) => ({
   vx,
   vy,
   created: Date.now(),
-  TTL: 3000,
+  TTL: 1000,
 });
 
 const createTree = (x, y, r) => ({ x, y, r });
@@ -89,7 +89,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       player.vy += player.ay * dt / 1000;
 
       const speed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
-      const maxSpeed = 30;
+      const maxSpeed = 20;
       if(speed > maxSpeed) {
         const factor = speed / maxSpeed;
         player.vx /= factor;

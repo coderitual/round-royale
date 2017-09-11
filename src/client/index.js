@@ -1,5 +1,6 @@
 import input from './input';
 import {
+  assetsReady,
   clear,
   drawWorld,
   drawPlayer,
@@ -11,8 +12,8 @@ import {
   drawDebugInfo
 } from './graphics.js'
 
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
 
 const pointer = {
   x: canvas.width / 2,
@@ -26,20 +27,20 @@ const initGfx = () => {
   pointer.y = canvas.height / 2;
 };
 
-window.addEventListener("resize", initGfx);
+window.addEventListener('resize', initGfx);
 initGfx();
 
 let socket;
 if(window.location.port === '8080') {
   socket = io(`${window.location.hostname}:3000`, {
     upgrade: false,
-    transports: ["websocket"],
+    transports: ['websocket'],
     query: `${(new URL(window.location)).searchParams}`,
   });
 } else {
   socket = io({
     upgrade: false,
-    transports: ["websocket"],
+    transports: ['websocket'],
     query: `${(new URL(window.location)).searchParams}`,
   });
 }
@@ -91,17 +92,26 @@ const scene = {
 const render = (scene, dt, time) => {
   clear(ctx, canvas.width, canvas.height);
 
+  if(!assetsReady()) {
+    return;
+  }
+
   // Move the world to mimic camera
   ctx.save();
   ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
   drawHoles(ctx, scene.world.holes);
   drawProjectiles(ctx, scene.projectiles);
   drawOtherPlayers(ctx, scene.players.others);
-  drawTrees(ctx, scene.world.trees);
   drawWorld(ctx, scene.world);
   ctx.restore();
 
   drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
+
+  ctx.save();
+  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  drawTrees(ctx, scene.world.trees);
+  ctx.restore();
+
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
   drawDebugInfo(ctx, { ping });
 };
@@ -134,7 +144,7 @@ const loop = time => {
 };
 
 let origin;
-window.addEventListener("deviceorientation", event => {
+window.addEventListener('deviceorientation', event => {
   if (!origin) {
     origin = {
       beta: event.beta,

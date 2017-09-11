@@ -1,4 +1,5 @@
 import { images } from './assets';
+export { assetsReady } from './assets';
 
 export const clear = (context, width, height) => {
   context.globalAlpha = 1;
@@ -22,34 +23,24 @@ export const drawWorld = (context, world) => {
 
 export const drawTrees = (context, trees) => {
   context.save();
-  context.strokeStyle = "#513213";
-  context.lineWidth   = 2;
-  context.shadowColor = "#000";
-  context.shadowOffsetX = 1;
-  context.shadowOffsetY = 1;
-  context.shadowBlur = 1;
   context.setLineDash([10,5]);
   trees.forEach(({ x, y, r}) => {
-    context.beginPath();
-    context.arc(x, y, r, 0, 2 * Math.PI, false);
-    context.stroke();
+    const factor = (2 * r) / images.tree.width;
+    const width = images.tree.width * factor;
+    const height = images.tree.height * factor;
+    context.drawImage(images.tree, x - r, y - r - (height - 2 * r), width, height);
   });
   context.restore();
 };
 
 export const drawHoles = (context, holes) => {
   context.save();
-  context.strokeStyle = "#e3301a";
-  context.lineWidth   = 2;
-  context.shadowColor = "#000";
-  context.shadowOffsetX = 1;
-  context.shadowOffsetY = 1;
-  context.shadowBlur = 1;
-  context.setLineDash([10,5]);
   holes.forEach(({ x, y, r}) => {
-    context.beginPath();
-    context.arc(x, y, r, 0, 2 * Math.PI, false);
-    context.stroke();
+    const xfactor = (2 * r) / images.hole.width;
+    const yfactor =  (2 * r) / images.hole.height;
+    const width = images.hole.width * xfactor;
+    const height = images.hole.height * yfactor;
+    context.drawImage(images.hole, x - r, y - r, width, height);
   });
   context.restore();
 };
