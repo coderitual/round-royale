@@ -109,8 +109,14 @@ export const drawPointer = (context, x, y) => {
 
 export const drawDebugInfo = (context, info) => {
   context.save();
-  context.fillStyle = "rgba(255, 255, 255, 1)";
-  context.font = '12px sans-serif';
+  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+  context.lineWidth = 3;
+  context.strokeStyle = "#fff";
+  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 2;
+  context.font = 'bold 11px sans-serif';
   context.textAlign = 'start';
   context.textBaseline = 'top';
   Object.entries(info).forEach(([key, value], index) => {

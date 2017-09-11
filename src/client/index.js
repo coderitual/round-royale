@@ -1,4 +1,3 @@
-import input from './input';
 import {
   assetsReady,
   clear,
@@ -23,8 +22,8 @@ const pointer = {
 const initGfx = () => {
   canvas.width = canvas.clientWidth;
   canvas.height = canvas.clientHeight;
-  pointer.x = canvas.width / 2;
-  pointer.y = canvas.height / 2;
+  pointer.x = 0;
+  pointer.y = 0;
 };
 
 window.addEventListener('resize', initGfx);
@@ -113,7 +112,7 @@ const render = (scene, dt, time) => {
   ctx.restore();
 
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
-  drawDebugInfo(ctx, { ping });
+  drawDebugInfo(ctx, { PING: ping });
 };
 
 const update = (scene, dt) => {
@@ -143,8 +142,23 @@ const loop = time => {
   oldTime = time;
 };
 
+let deviceDetected = false;
+let isTouch = true;
+const detectDevice = (event) => {
+  if (!deviceDetected) {
+    if(event.beta === null) {
+      canvas.classList.add('desktop');
+      isTouch = false;
+      initGfx();
+    }
+    deviceDetected = true;
+  }
+};
+
 let origin;
 window.addEventListener('deviceorientation', event => {
+  detectDevice(event);
+
   if (!origin) {
     origin = {
       beta: event.beta,
@@ -167,6 +181,24 @@ window.addEventListener('deviceorientation', event => {
   pointer.x = canvas.width / 2 * y / 90;
   pointer.y = canvas.height / 2 * x / 90;
   socket.emit('c:pointer:update', pointer);
+});
+
+canvas.addEventListener('mousemove', (event) => {
+  if(isTouch) {
+    return;
+  }
+
+  pointer.x = event.clientX - canvas.offsetLeft - canvas.width / 2;
+  pointer.y = event.clientY - canvas.offsetTop - canvas.height / 2;
+  socket.emit('c:pointer:update', pointer);
+});
+
+document.addEventListener('mousedown', () => {
+  if(isTouch) {
+    return;
+  }
+
+  socket.emit('c:fire:pressed');
 });
 
 document.addEventListener('touchstart', () => {
