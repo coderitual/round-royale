@@ -8,7 +8,7 @@ import {
   drawTrees,
   drawProjectiles,
   drawPointer,
-  drawDebugInfo
+  drawDebugInfo,
 } from './graphics.js'
 
 const canvas = document.getElementById('canvas');
@@ -44,10 +44,15 @@ if(window.location.port === '8080') {
   });
 }
 
-let ping = 0;
+const debugInfo = {
+  ping: 0,
+  fps: 0,
+  players: 1,
+  projectiles: 0,
+};
 
 socket.on('pong', (ms) => {
-  ping = ms;
+  debugInfo.ping = ms;
 });
 
 const createPlayer = ({ id, username = '' }) => ({
@@ -112,9 +117,11 @@ const render = (scene, dt, time) => {
   ctx.restore();
 
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
-  drawDebugInfo(ctx, { PING: ping });
+  drawDebugInfo(ctx, debugInfo);
 };
 
+let frames = 0;
+let timeAccu = 0;
 const update = (scene, dt) => {
   const { players, projectiles } = scene;
   // Add easing to compensate lag
@@ -131,6 +138,17 @@ const update = (scene, dt) => {
     projectile.x += (projectile.sx - projectile.x) / STRENGTH;
     projectile.y += (projectile.sy - projectile.y) / STRENGTH;
   });
+
+  timeAccu += dt;
+  frames++;
+  if (timeAccu > 1000) {
+    debugInfo.fps = frames / timeAccu * 1000 | 0;
+    frames = 0;
+    timeAccu = 0;
+  }
+  debugInfo.players = scene.players.others.size + 1;
+  debugInfo.projectiles = scene.projectiles.size;
+
 };
 
 let oldTime = 0;
@@ -178,8 +196,8 @@ window.addEventListener('deviceorientation', event => {
     x = -90;
   }
 
-  pointer.x = canvas.width / 2 * y / 90;
-  pointer.y = canvas.height / 2 * x / 90;
+  pointer.x = canvas.width / 2 * y / 90 * 1.3;
+  pointer.y = canvas.height / 2 * x / 90 * 1.3;
   socket.emit('c:pointer:update', pointer);
 });
 
@@ -187,7 +205,6 @@ canvas.addEventListener('mousemove', (event) => {
   if(isTouch) {
     return;
   }
-
   pointer.x = event.clientX - canvas.offsetLeft - canvas.width / 2;
   pointer.y = event.clientY - canvas.offsetTop - canvas.height / 2;
   socket.emit('c:pointer:update', pointer);
@@ -197,11 +214,15 @@ document.addEventListener('mousedown', () => {
   if(isTouch) {
     return;
   }
-
   socket.emit('c:fire:pressed');
 });
 
-document.addEventListener('touchstart', () => {
+document.addEventListener('touchstart', (event) => {
+  const { clientX, clientY } = event.touches[0];
+  if(clientX < 90 && clientY < 90) {
+    origin = null;
+    return;
+  }
   socket.emit('c:fire:pressed');
 });
 

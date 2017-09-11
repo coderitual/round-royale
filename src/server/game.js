@@ -36,13 +36,13 @@ const createWorld = (width, height) => {
   range(Math.floor(width / SIZE)).forEach((_, sx) => {
     range(Math.floor(height / SIZE)).forEach((_, sy) => {
       const random = Math.random();
-      if(random <= 0.3) {
+      if (random <= 0.3) {
         const radius = Math.random() * (SIZE / 3 - 50) + 50;
         const space = SIZE - 2 * radius;
         const x = Math.random() * space;
         const y = Math.random() * space;
         world.trees.add(createTree(x + SIZE * sx, y + SIZE * sy, radius));
-      } else if(random > 0.3 && random < 0.6) {
+      } else if (random > 0.3 && random < 0.6) {
         const radius = Math.random() * (SIZE / 3 - 50) + 50;
         const space = SIZE - 2 * radius;
         const x = Math.random() * space;
@@ -63,26 +63,26 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
   const update = (dt, time = Date.now()) => {
     // Players position calculation
     users.forEach(({ player, pointer }) => {
-      if(!pointer) {
+      if (!pointer) {
         return;
       }
       player.ax = pointer.x;
       player.ay = pointer.y;
 
       // Dead zone
-      const deadZone = 8;
-      if(Math.abs(player.ax) < deadZone) {
+      const deadZone = 15;
+      if (Math.abs(player.ax) < deadZone) {
         player.ax = 0;
       } else {
-        if(player.ax > 0) player.ax -= deadZone;
-        if(player.ax < 0) player.ax += deadZone;
+        if (player.ax > 0) player.ax -= deadZone;
+        if (player.ax < 0) player.ax += deadZone;
       }
 
-      if(Math.abs(player.ay) < deadZone) {
+      if (Math.abs(player.ay) < deadZone) {
         player.ay = 0;
       } else {
-        if(player.ay > 0) player.ay -= deadZone;
-        if(player.ay < 0) player.ay += deadZone;
+        if (player.ay > 0) player.ay -= deadZone;
+        if (player.ay < 0) player.ay += deadZone;
       }
 
       player.vx += player.ax * dt / 1000;
@@ -90,7 +90,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
 
       const speed = Math.sqrt(player.vx * player.vx + player.vy * player.vy);
       const maxSpeed = 20;
-      if(speed > maxSpeed) {
+      if (speed > maxSpeed) {
         const factor = speed / maxSpeed;
         player.vx /= factor;
         player.vy /= factor;
@@ -115,7 +115,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
 
     // World boundary players collision
     users.forEach(({ player }) => {
-      if(player.x < 0) {
+      if (player.x < 0) {
         player.x = 0;
         player.ax *= -1;
         player.vx *= -1;
@@ -124,7 +124,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
         player.ax *= -1;
         player.vx *= -1;
       }
-      if(player.y < 0) {
+      if (player.y < 0) {
         player.y = 0;
         player.ay *= -1;
         player.vy *= -1;
