@@ -9,15 +9,24 @@ const createPlayer = (x, y) => ({
   vy: 0,
   ax: 0,
   ay: 0,
+  r: 18,
+  kills: 0,
+  points: 0,
+  deaths: 0,
+  position: 1,
+  alive: true,
+  health: 5,
 });
 
 let projectileId = 0;
-const createProjectile = (x, y, vx, vy) => ({
+const createProjectile = (player, x, y, vx, vy) => ({
   id: projectileId++,
+  player,
   x,
   y,
   vx,
   vy,
+  r: 5,
   created: Date.now(),
   TTL: 1000,
 });
@@ -49,8 +58,8 @@ const createWorld = (width, height) => {
         const y = Math.random() * space;
         world.holes.add(createHole(x + SIZE * sx, y + SIZE * sy, radius));
       }
-    })
-  })
+    });
+  });
 
   return world;
 };
@@ -63,9 +72,6 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
   const update = (dt, time = Date.now()) => {
     // Players position calculation
     users.forEach(({ player, pointer }) => {
-      if (!pointer) {
-        return;
-      }
       player.ax = pointer.x;
       player.ay = pointer.y;
 
@@ -103,7 +109,6 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       player.y += player.vy * dt / 100;
     });
 
-
     projectiles = new Set([...projectiles].filter(projectile => {
       return time - projectile.created < projectile.TTL;
     }));
@@ -112,6 +117,33 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       projectile.x += projectile.vx * dt / 100;
       projectile.y += projectile.vy * dt / 100;
     });
+
+    projectiles.forEach(projectile => {
+      users.forEach(({ player }) => {
+        if (projectile.player === player) {
+          return;
+        }
+        const dx = projectile.x - player.x;
+        const dy = projectile.y - player.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < projectile.r + player.r) {
+          player.health--;
+          projectiles.delete(projectile);
+          if(player.health === 0) {
+            // TODO: renew player
+            player.deaths++;
+            player.health = 5;
+            player.points = 0;
+            projectile.player.kills++;
+            projectile.player.points++;
+          }
+        }
+      });
+    });
+
+    [...users]
+      .sort((a, b) => b.player.points - a.player.points)
+      .forEach(({ player }, index) => { player.position = index + 1});
 
     // World boundary players collision
     users.forEach(({ player }) => {
@@ -145,11 +177,19 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
           y: user.player.y,
           id: user.socket.id,
           username: user.username,
+          kills: user.player.kills,
+          deaths: user.player.deaths,
+          points: user.player.points,
+          position: user.player.position,
         }));
       const me = {
         x: currentUser.player.x,
         y: currentUser.player.y,
         id: currentUser.socket.id,
+        kills: currentUser.player.kills,
+        deaths: currentUser.player.deaths,
+        points: currentUser.player.points,
+        position: currentUser.player.position,
         me: true
       };
       currentUser.socket.emit('s:players:update', { me, others });
@@ -192,7 +232,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
         const newSpeed = 60;
         vx *= newSpeed;
         vy *= newSpeed;
-        projectiles.add(createProjectile(x, y, vx, vy));
+        projectiles.add(createProjectile(user.player, x, y, vx, vy));
       });
     },
     removeUser(user) {

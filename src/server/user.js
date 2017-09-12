@@ -3,7 +3,10 @@ const createUser = (socket, username) => ({
   username,
   game: null,
   player: null,
-  pointer: null,
+  pointer: {
+    x: 0,
+    y: 0,
+  },
 });
 
 export { createUser };

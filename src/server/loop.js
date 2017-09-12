@@ -1,4 +1,4 @@
-export default (func, delay = 15) => {
+export default (func, delay = 20) => {
   let lastUpdate = Date.now();
   const loop = () => {
     const now = Date.now();

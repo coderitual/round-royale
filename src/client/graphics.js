@@ -66,7 +66,7 @@ export const drawOtherPlayers = (context, players) => {
   context.font = 'bold 12px sans-serif';
   context.textAlign = 'center';
   context.textBaseline = 'top';
-  context.shadowColor = "rgba(0, 0, 0, 0.5)";
+  context.shadowColor = "rgba(0, 0, 0, 1)";
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 1;
@@ -107,20 +107,38 @@ export const drawPointer = (context, x, y) => {
   context.restore();
 };
 
-export const drawDebugInfo = (context, info) => {
+export const drawDebugInfo = (context, x, y, info) => {
   context.save();
-  context.fillStyle = "rgba(255, 255, 255, 0.5)";
+  context.fillStyle = "rgba(255, 255, 255, 0.4)";
   context.lineWidth = 3;
   context.strokeStyle = "#fff";
   context.shadowColor = "rgba(0, 0, 0, 1)";
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 2;
-  context.font = 'bold 12px sans-serif';
+  context.font = 'bold 11px sans-serif';
   context.textAlign = 'start';
   context.textBaseline = 'top';
   Object.entries(info).forEach(([key, value], index) => {
-    context.fillText(`${key}: ${value}`, 10, 10 + index * 15);
+    context.fillText(`${key}: ${value}`, x, y + index * 12);
+  });
+  context.restore();
+};
+
+export const drawGameInfo = (context, x, y, info) => {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.9)";
+  context.lineWidth = 3;
+  context.strokeStyle = "#fff";
+  context.shadowColor = "rgba(0, 0, 0, 1)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 1;
+  context.font = 'bold 14px sans-serif';
+  context.textAlign = 'end';
+  context.textBaseline = 'top';
+  Object.entries(info).forEach(([key, value], index) => {
+    context.fillText(`${key}: ${value}`, x, y + index * 14);
   });
   context.restore();
 };

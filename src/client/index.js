@@ -9,6 +9,7 @@ import {
   drawProjectiles,
   drawPointer,
   drawDebugInfo,
+  drawGameInfo,
 } from './graphics.js'
 
 const canvas = document.getElementById('canvas');
@@ -55,13 +56,24 @@ socket.on('pong', (ms) => {
   debugInfo.ping = ms;
 });
 
-const createPlayer = ({ id, username = '' }) => ({
+const createPlayer = ({
+  id,
+  username = '',
+  kills = 0,
+  deaths = 0,
+  points = 0,
+  position = 0,
+}) => ({
   id,
   username,
   x: 0,
   y: 0,
   sx: 0,
   sy: 0,
+  kills,
+  deaths,
+  points,
+  position,
 });
 
 const createProjectile = ({ id, x, y }) => ({
@@ -117,7 +129,13 @@ const render = (scene, dt, time) => {
   ctx.restore();
 
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
-  drawDebugInfo(ctx, debugInfo);
+  drawDebugInfo(ctx, 10, 10, debugInfo);
+  drawGameInfo(ctx, canvas.width - 10, 10, {
+    '#': scene.players.me.position,
+    'points': scene.players.me.points,
+    'kills': scene.players.me.kills,
+    'deaths': scene.players.me.deaths,
+  });
 };
 
 let frames = 0;
@@ -184,11 +202,9 @@ window.addEventListener('deviceorientation', event => {
     };
   }
 
-  let x = event.beta - origin.beta; // In degree in the range [-180,180]
-  let y = event.gamma - origin.gamma; // In degree in the range [-90,90]
+  let x = event.beta - origin.beta;
+  let y = event.gamma - origin.gamma;
 
-  // Because we don't want to have the device upside down
-  // We constrain the x value to the range [-90,90]
   if (x > 90) {
     x = 90;
   }
@@ -240,10 +256,18 @@ socket.on('s:players:update', ({ me, others }) => {
     }
     player.sx = playerData.x;
     player.sy = playerData.y;
+    player.kills = playerData.kills;
+    player.deaths = playerData.deaths;
+    player.points = playerData.points;
+    player.position = playerData.position;
   });
 
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
+  scene.players.me.kills = me.kills;
+  scene.players.me.deaths = me.deaths;
+  scene.players.me.points = me.points;
+  scene.players.me.position = me.position;
 });
 
 socket.on('s:projectiles:update', (projectiles) => {
