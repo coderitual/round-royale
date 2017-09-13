@@ -1,6 +1,8 @@
 import { images } from './assets';
 export { assetsReady } from './assets';
 
+const range = (count) => new Array(count).fill();
+
 export const clear = (context, width, height) => {
   context.globalAlpha = 1;
   context.globalCompositeOperation = 'source-over';
@@ -104,6 +106,26 @@ export const drawPointer = (context, x, y) => {
   context.beginPath();
   context.arc(x, y, 5, 0, 2 * Math.PI, false);
   context.stroke();
+  context.restore();
+};
+
+export const drawPlayerHealth = (context, x, y, health) => {
+  context.save();
+  range(health).forEach((_, index) => {
+    const scale = 0.7;
+    const { width, height } = images.heart;
+    context.drawImage(images.heart, x + width * scale * index, y, width * scale, height * scale);
+  });
+  context.restore();
+};
+
+export const drawPlayerProjectiles = (context, x, y, projectiles) => {
+  context.save();
+  range(projectiles).forEach((_, index) => {
+    const scale = 0.7;
+    const { width, height } = images.projectile;
+    context.drawImage(images.projectile, x + width * scale * index, y, width * scale, height * scale);
+  });
   context.restore();
 };
 

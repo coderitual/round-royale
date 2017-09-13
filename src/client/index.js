@@ -8,6 +8,8 @@ import {
   drawTrees,
   drawProjectiles,
   drawPointer,
+  drawPlayerHealth,
+  drawPlayerProjectiles,
   drawDebugInfo,
   drawGameInfo,
 } from './graphics.js'
@@ -50,6 +52,8 @@ const debugInfo = {
   fps: 0,
   players: 1,
   projectiles: 0,
+  trees: 0,
+  holes: 0,
 };
 
 socket.on('pong', (ms) => {
@@ -63,6 +67,8 @@ const createPlayer = ({
   deaths = 0,
   points = 0,
   position = 0,
+  health = 0,
+  projectiles = 0,
 }) => ({
   id,
   username,
@@ -74,6 +80,8 @@ const createPlayer = ({
   deaths,
   points,
   position,
+  health,
+  projectiles,
 });
 
 const createProjectile = ({ id, x, y }) => ({
@@ -129,6 +137,8 @@ const render = (scene, dt, time) => {
   ctx.restore();
 
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
+  drawPlayerHealth(ctx, 10, canvas.height - 50, scene.players.me.health);
+  drawPlayerProjectiles(ctx, 10, canvas.height - 30, scene.players.me.projectiles);
   drawDebugInfo(ctx, 10, 10, debugInfo);
   drawGameInfo(ctx, canvas.width - 10, 10, {
     '#': scene.players.me.position,
@@ -143,7 +153,7 @@ let timeAccu = 0;
 const update = (scene, dt) => {
   const { players, projectiles } = scene;
   // Add easing to compensate lag
-  const STRENGTH = 1;
+  const STRENGTH = 2;
   players.me.x += (players.me.sx - players.me.x) / STRENGTH;
   players.me.y += (players.me.sy - players.me.y) / STRENGTH;
 
@@ -166,7 +176,6 @@ const update = (scene, dt) => {
   }
   debugInfo.players = scene.players.others.size + 1;
   debugInfo.projectiles = scene.projectiles.size;
-
 };
 
 let oldTime = 0;
@@ -212,8 +221,8 @@ window.addEventListener('deviceorientation', event => {
     x = -90;
   }
 
-  pointer.x = canvas.width / 2 * y / 90 * 1.3;
-  pointer.y = canvas.height / 2 * x / 90 * 1.3;
+  pointer.x = canvas.width / 2 * y / 90 * 1.5;
+  pointer.y = canvas.height / 2 * x / 90 * 1.5;
   socket.emit('c:pointer:update', pointer);
 });
 
@@ -260,6 +269,8 @@ socket.on('s:players:update', ({ me, others }) => {
     player.deaths = playerData.deaths;
     player.points = playerData.points;
     player.position = playerData.position;
+    player.health = playerData.health;
+    player.projectiles = playerData.projectiles;
   });
 
   scene.players.me.sx = me.x;
@@ -268,6 +279,8 @@ socket.on('s:players:update', ({ me, others }) => {
   scene.players.me.deaths = me.deaths;
   scene.players.me.points = me.points;
   scene.players.me.position = me.position;
+  scene.players.me.health = me.health;
+  scene.players.me.projectiles = me.projectiles;
 });
 
 socket.on('s:projectiles:update', (projectiles) => {
@@ -282,7 +295,6 @@ socket.on('s:projectiles:update', (projectiles) => {
       projectile = createProjectile(projectileData);
       scene.projectiles.set(projectileData.id, projectile);
     }
-
     projectile.sx = projectileData.x;
     projectile.sy = projectileData.y;
   });
@@ -293,6 +305,8 @@ socket.on('s:world:create', ({ width, height, trees, holes }) => {
   scene.world.height = height;
   scene.world.trees = new Set(trees);
   scene.world.holes = new Set(holes);
+  debugInfo.trees = trees.length;
+  debugInfo.holes = holes.length;
 });
 
 loop(0);

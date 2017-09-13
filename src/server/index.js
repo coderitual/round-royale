@@ -17,10 +17,9 @@ const findOrCreateGame = () => {
 }
 
 export default socket => {
-  console.log(`connect: ${socket.id}`);
-
   const { username  = `Guest ${userId++}` } = socket.handshake.query;
-  console.log(username)
+  console.log(`connect: ${socket.id} ${username}`);
+
   const user = createUser(socket, username);
   users.add(user);
 
