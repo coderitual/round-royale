@@ -187,23 +187,8 @@ const loop = time => {
   oldTime = time;
 };
 
-let deviceDetected = false;
-let isTouch = true;
-const detectDevice = (event) => {
-  if (!deviceDetected) {
-    if(event.beta === null) {
-      canvas.classList.add('desktop');
-      isTouch = false;
-      initGfx();
-    }
-    deviceDetected = true;
-  }
-};
-
 let origin;
 window.addEventListener('deviceorientation', event => {
-  detectDevice(event);
-
   if (!origin) {
     origin = {
       beta: event.beta,
@@ -227,7 +212,7 @@ window.addEventListener('deviceorientation', event => {
 });
 
 canvas.addEventListener('mousemove', (event) => {
-  if(isTouch) {
+  if(device.mobile()) {
     return;
   }
   pointer.x = event.clientX - canvas.offsetLeft - canvas.width / 2;
@@ -236,7 +221,7 @@ canvas.addEventListener('mousemove', (event) => {
 });
 
 document.addEventListener('mousedown', () => {
-  if(isTouch) {
+  if(device.mobile()) {
     return;
   }
   socket.emit('c:fire:pressed');
