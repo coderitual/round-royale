@@ -143,7 +143,7 @@ let timeAccu = 0;
 const update = (scene, dt) => {
   const { players, projectiles } = scene;
   // Add easing to compensate lag
-  const STRENGTH = 5;
+  const STRENGTH = 1;
   players.me.x += (players.me.sx - players.me.x) / STRENGTH;
   players.me.y += (players.me.sy - players.me.y) / STRENGTH;
 

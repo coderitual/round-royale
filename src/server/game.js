@@ -2,7 +2,7 @@ import loop from './loop';
 
 const range = (count) => new Array(count).fill();
 
-const createPlayer = (x, y) => ({
+const createPlayer = (x = 0, y = 0) => ({
   x,
   y,
   vx: 0,
@@ -28,7 +28,7 @@ const createProjectile = (player, x, y, vx, vy) => ({
   vy,
   r: 5,
   created: Date.now(),
-  TTL: 1000,
+  TTL: 1500,
 });
 
 const createTree = (x, y, r) => ({ x, y, r });
@@ -68,6 +68,30 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
   const users = new Set();
   const world = createWorld(2000, 2000);
   let projectiles = new Set();
+
+  const killPlayer = (player) => {
+    player.deaths++;
+    player.health = 5;
+    player.points = 0;
+    resetPlayerPosition(player);
+  }
+
+  const resetPlayerPosition = (player) => {
+    let positionFound = false;
+    while (!positionFound) {
+      player.x = Math.random() * world.width;
+      player.y = Math.random() * world.height;
+      positionFound = ![...world.trees, ...world.holes].some(({ x, y, r }) => {
+        const dx = player.x - x;
+        const dy = player.y - y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if(distance < r + player.r) {
+          return true;
+        }
+        return false;
+      });
+    }
+  };
 
   const update = (dt, time = Date.now()) => {
     // Players position calculation
@@ -118,6 +142,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       projectile.y += projectile.vy * dt / 100;
     });
 
+    // Projectiles vs players collision
     projectiles.forEach(projectile => {
       users.forEach(({ player }) => {
         if (projectile.player === player) {
@@ -130,10 +155,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
           player.health--;
           projectiles.delete(projectile);
           if(player.health === 0) {
-            // TODO: renew player
-            player.deaths++;
-            player.health = 5;
-            player.points = 0;
+            killPlayer(player);
             projectile.player.kills++;
             projectile.player.points++;
           }
@@ -141,9 +163,50 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       });
     });
 
-    [...users]
-      .sort((a, b) => b.player.points - a.player.points)
-      .forEach(({ player }, index) => { player.position = index + 1});
+    // Projectiles vs trees collision
+    projectiles.forEach(projectile => {
+      world.trees.forEach((tree) => {
+        const dx = projectile.x - tree.x;
+        const dy = projectile.y - tree.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance < projectile.r + tree.r) {
+          projectiles.delete(projectile);
+        }
+      });
+    });
+
+    // Players vs trees collision
+    users.forEach(({ player }) => {
+      world.trees.forEach((tree) => {
+        const dx = player.x - tree.x;
+        const dy = player.y - tree.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const vx = dx / distance;
+        const vy = dx / distance;
+        if (distance < player.r + tree.r) {
+          player.x -= player.vx * dt / 100;
+          player.y -= player.vy * dt / 100;
+          player.vx *= -1;
+          player.vy *= -1;
+          player.ax *= -1;
+          player.ay *= -1;
+        }
+      });
+    });
+
+    // Players vs holes collision
+    users.forEach(({ player }) => {
+      world.holes.forEach((hole) => {
+        const dx = player.x - hole.x;
+        const dy = player.y - hole.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const vx = dx / distance;
+        const vy = dx / distance;
+        if (distance < hole.r) {
+          killPlayer(player);
+        }
+      });
+    });
 
     // World boundary players collision
     users.forEach(({ player }) => {
@@ -166,6 +229,11 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
         player.vy *= -1;
       }
     });
+
+    // Calculate players position
+    [...users]
+    .sort((a, b) => b.player.points - a.player.points)
+    .forEach(({ player }, index) => { player.position = index + 1});
   };
 
   const sync = () => {
@@ -210,7 +278,8 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
     destroy,
     addUser(user) {
       users.add(user);
-      user.player = createPlayer(500, 500);
+      user.player = createPlayer();
+      resetPlayerPosition(user.player);
       user.socket.emit('s:world:create', {
         width: world.width,
         height: world.height,
