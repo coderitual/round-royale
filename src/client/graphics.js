@@ -162,7 +162,6 @@ export const drawPlayerList = (context, x, y, players) => {
   context.textAlign = 'right';
   context.textBaseline = 'bottom';
   [...players].forEach(([_, { username, position, health, projectiles }], index) => {
-    console.log(index)
     context.fillText(`${username} - 🏆 ${position}  ❤️ ${health}  🔫 ${projectiles}`,  x, y + index * -12);
   });
   context.restore();

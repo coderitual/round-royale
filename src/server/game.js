@@ -2,7 +2,7 @@ import loop from './loop';
 
 const range = (count) => new Array(count).fill();
 
-const createPlayer = (x = 0, y = 0) => ({
+const createPlayer = (user, x = 0, y = 0) => ({
   x,
   y,
   vx: 0,
@@ -79,8 +79,14 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
     player.deaths++;
     player.health = 5;
     player.points = 0;
-    player.projectiles = 0;
     player.maxProjectiles = 2;
+
+    const projectilesToKill = new Set([...projectiles].filter(projectile => {
+      return projectile.player === player;
+    }));
+
+    projectilesToKill.forEach(killProjectile);
+
     resetPlayerPosition(player);
   };
 
