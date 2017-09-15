@@ -65,7 +65,7 @@ const createWorld = (width, height) => {
   return world;
 };
 
-const createGame = ({ name, maxUsersCount = 6 } = {}) => {
+const createGame = ({ name, maxUsersCount = 10 } = {}) => {
   const users = new Set();
   const world = createWorld(2000, 2000);
   let projectiles = new Set();
@@ -79,7 +79,8 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
     player.deaths++;
     player.health = 5;
     player.points = 0;
-    player.maxProjectiles = 1;
+    player.projectiles = 0;
+    player.maxProjectiles = 2;
     resetPlayerPosition(player);
   };
 
@@ -88,7 +89,11 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
     player.points++;
     const bonus = Math.random();
     if (bonus > 0.5) {
-      player.health++;
+      if (player.health < 5) {
+        player.health = 5;
+      } else {
+        player.health++;
+      }
     } else {
       player.maxProjectiles++;
     }
@@ -96,6 +101,10 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
 
   const resetPlayerPosition = (player) => {
     let positionFound = false;
+    player.vx = 0;
+    player.vy = 0;
+    player.ax = 0;
+    player.ay = 0;
     while (!positionFound) {
       player.x = Math.random() * world.width;
       player.y = Math.random() * world.height;
@@ -118,7 +127,7 @@ const createGame = ({ name, maxUsersCount = 6 } = {}) => {
       player.ay = pointer.y;
 
       // Dead zone
-      const deadZone = 20;
+      const deadZone = 25;
       if (Math.abs(player.ax) < deadZone) {
         player.ax = 0;
       } else {

@@ -72,9 +72,11 @@ export const drawOtherPlayers = (context, players) => {
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 1;
-  players.forEach(({ x, y, username }) => {
+  players.forEach(({ x, y, username, position, health, projectiles }) => {
     context.drawImage(images.eye, x - images.eye.width / 2, y - images.eye.height / 2);
-    context.fillText(username,  x, y + 15);
+    context.fillText(`${username}`,  x, y + 15);
+    context.font = 'bold 9px sans-serif';
+    context.fillText(`🏆 ${position}  ❤️ ${health}  🔫 ${projectiles}`,  x, y + 30);
   });
   context.restore();
 };
@@ -138,11 +140,30 @@ export const drawDebugInfo = (context, x, y, info) => {
   context.shadowOffsetX = 1;
   context.shadowOffsetY = 1;
   context.shadowBlur = 2;
-  context.font = 'bold 11px sans-serif';
+  context.font = 'bold 10px sans-serif';
   context.textAlign = 'start';
   context.textBaseline = 'top';
   Object.entries(info).forEach(([key, value], index) => {
     context.fillText(`${key}: ${value}`, x, y + index * 12);
+  });
+  context.restore();
+};
+
+export const drawPlayerList = (context, x, y, players) => {
+  context.save();
+  context.fillStyle = "rgba(255, 255, 255, 0.4)";
+  context.lineWidth = 3;
+  context.strokeStyle = "#fff";
+  context.shadowColor = "rgba(0, 0, 0, 1)";
+  context.shadowOffsetX = 1;
+  context.shadowOffsetY = 1;
+  context.shadowBlur = 2;
+  context.font = 'bold 10px sans-serif';
+  context.textAlign = 'right';
+  context.textBaseline = 'bottom';
+  [...players].forEach(([_, { username, position, health, projectiles }], index) => {
+    console.log(index)
+    context.fillText(`${username} - 🏆 ${position}  ❤️ ${health}  🔫 ${projectiles}`,  x, y + index * -12);
   });
   context.restore();
 };

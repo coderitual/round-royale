@@ -10,9 +10,11 @@ import {
   drawPointer,
   drawPlayerHealth,
   drawPlayerProjectiles,
+  drawPlayerList,
   drawDebugInfo,
   drawGameInfo,
-} from './graphics.js'
+} from './graphics';
+import { version } from '../../package.json';
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
@@ -48,6 +50,7 @@ if(window.location.port === '8080') {
 }
 
 const debugInfo = {
+  version,
   ping: 0,
   fps: 0,
   players: 1,
@@ -139,6 +142,7 @@ const render = (scene, dt, time) => {
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
   drawPlayerHealth(ctx, 10, canvas.height - 50, scene.players.me.health);
   drawPlayerProjectiles(ctx, 10, canvas.height - 30, scene.players.me.projectiles);
+  drawPlayerList(ctx, canvas.width - 10, canvas.height - 10, scene.players.others);
   drawDebugInfo(ctx, 10, 10, debugInfo);
   drawGameInfo(ctx, canvas.width - 10, 10, {
     '#': scene.players.me.position,

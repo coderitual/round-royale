@@ -2,10 +2,12 @@ import nodeResolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 import replace from 'rollup-plugin-replace';
 import uglify from 'rollup-plugin-uglify';
+import json from 'rollup-plugin-json';
 
 var env = process.env.NODE_ENV
 var config = {
   plugins: [
+    json(),
     nodeResolve({
       jsnext: true
     }),
