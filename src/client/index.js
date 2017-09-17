@@ -80,6 +80,7 @@ const createPlayer = ({
   x: 0,
   y: 0,
   r: 0,
+  scale: 1,
   sx: 0,
   sy: 0,
   kills,
@@ -128,8 +129,10 @@ const render = (scene, dt, time) => {
   }
 
   // Move the world to mimic camera
+  const { x, y, scale } = scene.players.me;
   ctx.save();
-  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  ctx.translate(-x / scale + canvas.width / 2, -y / scale + canvas.height / 2);
+  ctx.scale(1 / scale, 1 / scale);
   drawHoles(ctx, scene.world.holes);
   drawProjectiles(ctx, scene.projectiles);
   drawOtherPlayers(ctx, scene.players.others);
@@ -139,7 +142,8 @@ const render = (scene, dt, time) => {
   drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
 
   ctx.save();
-  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  ctx.translate(-x / scale + canvas.width / 2, -y / scale + canvas.height / 2);
+  ctx.scale(1 / scale, 1 / scale);
   drawTrees(ctx, scene.world.trees);
   ctx.restore();
 
@@ -161,18 +165,20 @@ let timeAccu = 0;
 const update = (scene, dt) => {
   const { players, projectiles } = scene;
   // Add easing to compensate lag
-  const STRENGTH = 2;
-  players.me.x += (players.me.sx - players.me.x) / STRENGTH;
-  players.me.y += (players.me.sy - players.me.y) / STRENGTH;
+  const MOVE_STRENGTH = 2;
+  const SCALE_STRENGTH = 10;
+  players.me.x += (players.me.sx - players.me.x) / MOVE_STRENGTH;
+  players.me.y += (players.me.sy - players.me.y) / MOVE_STRENGTH;
+  players.me.scale += (players.me.sscale - players.me.scale) / SCALE_STRENGTH;
 
   players.others.forEach(player => {
-    player.x += (player.sx - player.x) / STRENGTH;
-    player.y += (player.sy - player.y) / STRENGTH;
+    player.x += (player.sx - player.x) / MOVE_STRENGTH;
+    player.y += (player.sy - player.y) / MOVE_STRENGTH;
   });
 
   projectiles.forEach(projectile => {
-    projectile.x += (projectile.sx - projectile.x) / STRENGTH;
-    projectile.y += (projectile.sy - projectile.y) / STRENGTH;
+    projectile.x += (projectile.sx - projectile.x) / MOVE_STRENGTH;
+    projectile.y += (projectile.sy - projectile.y) / MOVE_STRENGTH;
   });
 
   timeAccu += dt;
@@ -239,7 +245,7 @@ document.addEventListener('mousedown', () => {
   if(device.mobile()) {
     return;
   }
-  socket.emit('c:fire:pressed');
+  socket.emit('c:fire:press');
 });
 
 document.addEventListener('touchstart', (event) => {
@@ -248,7 +254,7 @@ document.addEventListener('touchstart', (event) => {
     origin = null;
     return;
   }
-  socket.emit('c:fire:pressed');
+  socket.emit('c:fire:press');
 });
 
 socket.on('s:players:update', ({ me, others }) => {
@@ -266,6 +272,7 @@ socket.on('s:players:update', ({ me, others }) => {
     player.sx = playerData.x;
     player.sy = playerData.y;
     player.r = playerData.r;
+    player.sscale = playerData.scale;
     player.kills = playerData.kills;
     player.deaths = playerData.deaths;
     player.points = playerData.points;
@@ -281,6 +288,7 @@ socket.on('s:players:update', ({ me, others }) => {
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
   scene.players.me.r = me.r;
+  scene.players.me.sscale = me.scale;
   scene.players.me.kills = me.kills;
   scene.players.me.deaths = me.deaths;
   scene.players.me.points = me.points;
