@@ -2,6 +2,13 @@ import loop from './loop';
 
 const range = (count) => new Array(count).fill();
 
+const playerDefaults = {
+  points: 0,
+  maxProjectiles: 2,
+  health: 5,
+  r: 18,
+};
+
 const createPlayer = (user, x = 0, y = 0) => ({
   x,
   y,
@@ -9,7 +16,7 @@ const createPlayer = (user, x = 0, y = 0) => ({
   vy: 0,
   ax: 0,
   ay: 0,
-  r: 18,
+  r: 180,
   kills: 0,
   points: 0,
   deaths: 0,
@@ -67,7 +74,7 @@ const createWorld = (width, height) => {
 
 const createGame = ({ name, maxUsersCount = 10 } = {}) => {
   const users = new Set();
-  const world = createWorld(2000, 2000);
+  const world = createWorld(1000, 1000);
   let projectiles = new Set();
 
   const killProjectile = (projectile) => {
@@ -77,9 +84,10 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
 
   const killPlayer = (player) => {
     player.deaths++;
-    player.health = 5;
-    player.points = 0;
-    player.maxProjectiles = 2;
+    player.health = playerDefaults.health;
+    player.points = playerDefaults.points;
+    player.maxProjectiles = playerDefaults.maxProjectiles;
+    player.r = playerDefaults.r;
 
     const projectilesToKill = new Set([...projectiles].filter(projectile => {
       return projectile.player === player;
@@ -93,6 +101,7 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
   const awardPlayer = (player) => {
     player.kills++;
     player.points++;
+    player.r += 2;
     const bonus = Math.random();
     if (bonus > 0.5) {
       if (player.health < 5) {
@@ -277,6 +286,7 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
         .map(user => ({
           x: user.player.x,
           y: user.player.y,
+          r: user.player.r,
           id: user.socket.id,
           username: user.username,
           kills: user.player.kills,
@@ -289,7 +299,8 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
       const me = {
         x: currentUser.player.x,
         y: currentUser.player.y,
-        id: currentUser.socket.id,
+        r: currentUser.player.r,
+        username: currentUser.username,
         kills: currentUser.player.kills,
         deaths: currentUser.player.deaths,
         points: currentUser.player.points,

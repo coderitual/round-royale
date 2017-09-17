@@ -66,6 +66,7 @@ socket.on('pong', (ms) => {
 const createPlayer = ({
   id,
   username = '',
+  me = false,
   kills = 0,
   deaths = 0,
   points = 0,
@@ -75,8 +76,10 @@ const createPlayer = ({
 }) => ({
   id,
   username,
+  me,
   x: 0,
   y: 0,
+  r: 0,
   sx: 0,
   sy: 0,
   kills,
@@ -96,8 +99,9 @@ const createProjectile = ({ id, x, y }) => ({
 });
 
 const players = {
-  me: createPlayer('me'),
+  me: null,
   others: new Map(),
+  sorted: new Set(),
 };
 
 const projectiles = new Map();
@@ -142,10 +146,10 @@ const render = (scene, dt, time) => {
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
   drawPlayerHealth(ctx, 10, canvas.height - 50, scene.players.me.health);
   drawPlayerProjectiles(ctx, 10, canvas.height - 30, scene.players.me.projectiles);
-  drawPlayerList(ctx, canvas.width - 10, canvas.height - 10, scene.players.others);
+  drawPlayerList(ctx, canvas.width - 10, canvas.height - 10, scene.players.sorted);
   drawDebugInfo(ctx, 10, 10, debugInfo);
-  drawGameInfo(ctx, canvas.width - 10, 10, {
-    '#': scene.players.me.position,
+  drawGameInfo(ctx, canvas.width / 2, 25, {
+    'position': scene.players.me.position,
     'points': scene.players.me.points,
     'kills': scene.players.me.kills,
     'deaths': scene.players.me.deaths,
@@ -180,11 +184,18 @@ const update = (scene, dt) => {
   }
   debugInfo.players = scene.players.others.size + 1;
   debugInfo.projectiles = scene.projectiles.size;
+
+  scene.players.sorted = new Set(
+    [scene.players.me, ...[...scene.players.others].map(([key, value]) => value)].sort((a, b) => a.position - b.position)
+  );
 };
 
 let oldTime = 0;
 const loop = time => {
   requestAnimationFrame(loop);
+  if (!scene.players.me) {
+    return;
+  }
   const dt = time - oldTime;
   update(scene, dt, time);
   render(scene, dt, time);
@@ -254,6 +265,7 @@ socket.on('s:players:update', ({ me, others }) => {
     }
     player.sx = playerData.x;
     player.sy = playerData.y;
+    player.r = playerData.r;
     player.kills = playerData.kills;
     player.deaths = playerData.deaths;
     player.points = playerData.points;
@@ -262,8 +274,13 @@ socket.on('s:players:update', ({ me, others }) => {
     player.projectiles = playerData.projectiles;
   });
 
+  if (!scene.players.me) {
+    scene.players.me = createPlayer(me);
+  }
+
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
+  scene.players.me.r = me.r;
   scene.players.me.kills = me.kills;
   scene.players.me.deaths = me.deaths;
   scene.players.me.points = me.points;
