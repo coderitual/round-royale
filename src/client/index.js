@@ -66,6 +66,7 @@ socket.on('pong', (ms) => {
 const createPlayer = ({
   id,
   username = '',
+  me = false,
   kills = 0,
   deaths = 0,
   points = 0,
@@ -75,8 +76,11 @@ const createPlayer = ({
 }) => ({
   id,
   username,
+  me,
   x: 0,
   y: 0,
+  r: 0,
+  scale: 1,
   sx: 0,
   sy: 0,
   kills,
@@ -96,8 +100,9 @@ const createProjectile = ({ id, x, y }) => ({
 });
 
 const players = {
-  me: createPlayer('me'),
+  me: null,
   others: new Map(),
+  sorted: new Set(),
 };
 
 const projectiles = new Map();
@@ -124,8 +129,10 @@ const render = (scene, dt, time) => {
   }
 
   // Move the world to mimic camera
+  const { x, y, scale } = scene.players.me;
   ctx.save();
-  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  ctx.translate(-x / scale + canvas.width / 2, -y / scale + canvas.height / 2);
+  ctx.scale(1 / scale, 1 / scale);
   drawHoles(ctx, scene.world.holes);
   drawProjectiles(ctx, scene.projectiles);
   drawOtherPlayers(ctx, scene.players.others);
@@ -135,17 +142,18 @@ const render = (scene, dt, time) => {
   drawPlayer(ctx, canvas.width / 2, canvas.height / 2, time);
 
   ctx.save();
-  ctx.translate(-scene.players.me.x + canvas.width / 2, -scene.players.me.y + canvas.height / 2);
+  ctx.translate(-x / scale + canvas.width / 2, -y / scale + canvas.height / 2);
+  ctx.scale(1 / scale, 1 / scale);
   drawTrees(ctx, scene.world.trees);
   ctx.restore();
 
   drawPointer(ctx, scene.pointer.x + canvas.width / 2, scene.pointer.y + canvas.height / 2);
   drawPlayerHealth(ctx, 10, canvas.height - 50, scene.players.me.health);
   drawPlayerProjectiles(ctx, 10, canvas.height - 30, scene.players.me.projectiles);
-  drawPlayerList(ctx, canvas.width - 10, canvas.height - 10, scene.players.others);
+  drawPlayerList(ctx, canvas.width - 10, canvas.height - 10, scene.players.sorted);
   drawDebugInfo(ctx, 10, 10, debugInfo);
-  drawGameInfo(ctx, canvas.width - 10, 10, {
-    '#': scene.players.me.position,
+  drawGameInfo(ctx, canvas.width / 2, 25, {
+    'position': scene.players.me.position,
     'points': scene.players.me.points,
     'kills': scene.players.me.kills,
     'deaths': scene.players.me.deaths,
@@ -157,18 +165,20 @@ let timeAccu = 0;
 const update = (scene, dt) => {
   const { players, projectiles } = scene;
   // Add easing to compensate lag
-  const STRENGTH = 2;
-  players.me.x += (players.me.sx - players.me.x) / STRENGTH;
-  players.me.y += (players.me.sy - players.me.y) / STRENGTH;
+  const MOVE_STRENGTH = 2;
+  const SCALE_STRENGTH = 10;
+  players.me.x += (players.me.sx - players.me.x) / MOVE_STRENGTH;
+  players.me.y += (players.me.sy - players.me.y) / MOVE_STRENGTH;
+  players.me.scale += (players.me.sscale - players.me.scale) / SCALE_STRENGTH;
 
   players.others.forEach(player => {
-    player.x += (player.sx - player.x) / STRENGTH;
-    player.y += (player.sy - player.y) / STRENGTH;
+    player.x += (player.sx - player.x) / MOVE_STRENGTH;
+    player.y += (player.sy - player.y) / MOVE_STRENGTH;
   });
 
   projectiles.forEach(projectile => {
-    projectile.x += (projectile.sx - projectile.x) / STRENGTH;
-    projectile.y += (projectile.sy - projectile.y) / STRENGTH;
+    projectile.x += (projectile.sx - projectile.x) / MOVE_STRENGTH;
+    projectile.y += (projectile.sy - projectile.y) / MOVE_STRENGTH;
   });
 
   timeAccu += dt;
@@ -180,11 +190,18 @@ const update = (scene, dt) => {
   }
   debugInfo.players = scene.players.others.size + 1;
   debugInfo.projectiles = scene.projectiles.size;
+
+  scene.players.sorted = new Set(
+    [scene.players.me, ...[...scene.players.others].map(([key, value]) => value)].sort((a, b) => a.position - b.position)
+  );
 };
 
 let oldTime = 0;
 const loop = time => {
   requestAnimationFrame(loop);
+  if (!scene.players.me) {
+    return;
+  }
   const dt = time - oldTime;
   update(scene, dt, time);
   render(scene, dt, time);
@@ -228,7 +245,7 @@ document.addEventListener('mousedown', () => {
   if(device.mobile()) {
     return;
   }
-  socket.emit('c:fire:pressed');
+  socket.emit('c:fire:press');
 });
 
 document.addEventListener('touchstart', (event) => {
@@ -237,7 +254,7 @@ document.addEventListener('touchstart', (event) => {
     origin = null;
     return;
   }
-  socket.emit('c:fire:pressed');
+  socket.emit('c:fire:press');
 });
 
 socket.on('s:players:update', ({ me, others }) => {
@@ -254,6 +271,8 @@ socket.on('s:players:update', ({ me, others }) => {
     }
     player.sx = playerData.x;
     player.sy = playerData.y;
+    player.r = playerData.r;
+    player.sscale = playerData.scale;
     player.kills = playerData.kills;
     player.deaths = playerData.deaths;
     player.points = playerData.points;
@@ -262,8 +281,14 @@ socket.on('s:players:update', ({ me, others }) => {
     player.projectiles = playerData.projectiles;
   });
 
+  if (!scene.players.me) {
+    scene.players.me = createPlayer(me);
+  }
+
   scene.players.me.sx = me.x;
   scene.players.me.sy = me.y;
+  scene.players.me.r = me.r;
+  scene.players.me.sscale = me.scale;
   scene.players.me.kills = me.kills;
   scene.players.me.deaths = me.deaths;
   scene.players.me.points = me.points;

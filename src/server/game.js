@@ -2,6 +2,13 @@ import loop from './loop';
 
 const range = (count) => new Array(count).fill();
 
+const playerDefaults = {
+  points: 0,
+  maxProjectiles: 2,
+  health: 5,
+  r: 18,
+};
+
 const createPlayer = (user, x = 0, y = 0) => ({
   x,
   y,
@@ -9,14 +16,14 @@ const createPlayer = (user, x = 0, y = 0) => ({
   vy: 0,
   ax: 0,
   ay: 0,
-  r: 18,
+  r: playerDefaults.r,
   kills: 0,
-  points: 0,
+  points: playerDefaults.points,
   deaths: 0,
   position: 1,
-  health: 5,
+  health: playerDefaults.health,
   projectiles: 0,
-  maxProjectiles: 2,
+  maxProjectiles: playerDefaults.maxProjectiles,
 });
 
 let projectileId = 0;
@@ -77,14 +84,14 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
 
   const killPlayer = (player) => {
     player.deaths++;
-    player.health = 5;
-    player.points = 0;
-    player.maxProjectiles = 2;
+    player.health = playerDefaults.health;
+    player.points = playerDefaults.points;
+    player.maxProjectiles = playerDefaults.maxProjectiles;
+    player.r = playerDefaults.r;
 
     const projectilesToKill = new Set([...projectiles].filter(projectile => {
       return projectile.player === player;
     }));
-
     projectilesToKill.forEach(killProjectile);
 
     resetPlayerPosition(player);
@@ -93,6 +100,7 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
   const awardPlayer = (player) => {
     player.kills++;
     player.points++;
+    player.r += 1;
     const bonus = Math.random();
     if (bonus > 0.5) {
       if (player.health < 5) {
@@ -177,6 +185,28 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
       projectile.y += projectile.vy * dt / 100;
     });
 
+    // Players vs players collision
+    users.forEach(({ player: playerA }) => {
+      users.forEach(({ player: playerB }) => {
+        if (playerA === playerB) {
+          return;
+        }
+        const dx = playerA.x - playerB.x;
+        const dy = playerA.y - playerB.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+        const vx = dx / distance;
+        const vy = dy / distance;
+        if (distance < playerA.r + playerB.r) {
+          playerA.x -= playerA.vx * dt / 100;
+          playerA.y -= playerA.vy * dt / 100;
+          playerA.vx *= -1;
+          playerA.vy *= -1;
+          playerA.ax *= -1;
+          playerA.ay *= -1;
+        }
+      });
+    });
+
     // Projectiles vs players collision
     projectiles.forEach(projectile => {
       users.forEach(({ player }) => {
@@ -215,8 +245,6 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
         const dx = player.x - tree.x;
         const dy = player.y - tree.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const vx = dx / distance;
-        const vy = dx / distance;
         if (distance < player.r + tree.r) {
           player.x -= player.vx * dt / 100;
           player.y -= player.vy * dt / 100;
@@ -234,8 +262,6 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
         const dx = player.x - hole.x;
         const dy = player.y - hole.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
-        const vx = dx / distance;
-        const vy = dx / distance;
         if (distance < hole.r) {
           killPlayer(player);
         }
@@ -277,6 +303,7 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
         .map(user => ({
           x: user.player.x,
           y: user.player.y,
+          r: user.player.r,
           id: user.socket.id,
           username: user.username,
           kills: user.player.kills,
@@ -289,14 +316,16 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
       const me = {
         x: currentUser.player.x,
         y: currentUser.player.y,
-        id: currentUser.socket.id,
+        r: currentUser.player.r,
+        username: currentUser.username,
         kills: currentUser.player.kills,
         deaths: currentUser.player.deaths,
         points: currentUser.player.points,
         position: currentUser.player.position,
         health: currentUser.player.health,
         projectiles: currentUser.player.maxProjectiles - currentUser.player.projectiles,
-        me: true
+        me: true,
+        scale: currentUser.player.r / playerDefaults.r,
       };
       currentUser.socket.emit('s:players:update', { me, others });
 
@@ -324,10 +353,10 @@ const createGame = ({ name, maxUsersCount = 10 } = {}) => {
         holes: [...world.holes],
         trees: [...world.trees],
       });
-      user.socket.on("c:pointer:update", pointer => {
+      user.socket.on('c:pointer:update', pointer => {
         user.pointer = pointer;
       });
-      user.socket.on("c:fire:pressed", () => {
+      user.socket.on('c:fire:press', () => {
         if (user.player.projectiles === user.player.maxProjectiles) {
           return;
         }
